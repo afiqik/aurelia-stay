@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="position:sticky;top:0;z-index:50">
+  <div data-scroll-progress="1" style="position:absolute;left:0;right:0;top:0;height:3px;background:#174C38;transform-origin:0 50%;transform:scaleX(0);z-index:2"></div>
+  <header data-header="1" style="background:#F2F2F2;border-bottom:1px solid rgba(78,22,23,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:box-shadow .3s, background-color .3s">
+    <div style="max-width:1280px;margin:0 auto;padding:0 24px;height:74px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <a href="Home.dc.html" aria-label="AURELIA STAY home" style="display:flex;align-items:center;gap:10px;color:#4E1617;text-decoration:none">
+        <span style="width:30px;height:30px;border-radius:50%;background:#4E1617;display:flex;align-items:center;justify-content:center;color:#F1D7A5;font:700 15px 'Comfortaa'">A</span>
+        <span style="font-family:'Comfortaa',sans-serif;font-weight:700;font-size:clamp(16px,4.4vw,20px);letter-spacing:.06em;white-space:nowrap">AURELIA STAY</span>
+      </a>
+      <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+        <nav aria-label="Main" style="display:flex;gap:6px;align-items:center">
+          <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="6">
+            <a href="{{ n.href }}" aria-current="{{ n.current }}" style="padding:9px 14px;border-radius:999px;font-size:15px;font-weight:500;color:{{ n.fg }};background:{{ n.bg }};text-decoration:none;transition:background .25s,color .25s" style-hover="background:#E4E4E4;color:#4E1617">{{ n.label }}</a>
+          </sc-for>
+        </nav>
+      </sc-if>
+      <div style="display:flex;align-items:center;gap:10px;position:relative">
+        <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}"><button data-no-i18n="1" onClick="{{ toggleLang }}" aria-label="{{ langAria }}" style="height:44px;padding:4px;display:flex;align-items:center;gap:2px;background:#FFFFFF;border:1px solid rgba(78,22,23,.18);border-radius:999px;cursor:pointer;font:600 12px 'Outfit';letter-spacing:.06em">
+          <span style="height:34px;min-width:36px;padding:0 8px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:{{ enBg }};color:{{ enFg }};transition:background .3s,color .3s">EN</span>
+          <span style="height:34px;min-width:36px;padding:0 8px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:{{ msBg }};color:{{ msFg }};transition:background .3s,color .3s">BM</span>
+        </button></sc-if>
+        <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
+          <a href="Login.dc.html" style="font-size:15px;font-weight:500;color:#4E1617;text-decoration:none;padding:9px 12px" style-hover="color:#174C38">Sign in</a>
+        </sc-if>
+        <sc-if value="{{ loggedIn }}">
+          <button onClick="{{ toggleAcct }}" aria-haspopup="menu" aria-expanded="{{ acctOpen }}" style="display:flex;align-items:center;gap:10px;background:#FFFFFF;border:1px solid rgba(78,22,23,.18);border-radius:999px;padding:4px 12px 4px 4px;cursor:pointer;color:#4E1617">
+            <sc-if value="{{ me.photo }}"><img src="{{ me.photo }}" alt="" referrerPolicy="no-referrer" onerror="this.dispatchEvent(new CustomEvent('aurelia-photofail',{bubbles:true}))" style="width:34px;height:34px;flex:none;border-radius:50%;object-fit:cover;display:block;background:#174C38"></sc-if>
+            <sc-if value="{{ me.noPhoto }}"><span style="width:34px;height:34px;border-radius:50%;background:#174C38;color:#F1D7A5;display:flex;align-items:center;justify-content:center;font:700 14px 'Comfortaa'">{{ me.initial }}</span></sc-if>
+            <sc-if value="{{ wide }}"><span style="font-size:14px;font-weight:500">{{ me.first }}</span></sc-if>
+            <sc-if value="{{ unread }}"><span aria-label="unread notifications" style="min-width:20px;height:20px;border-radius:10px;background:#4E1617;color:#F1D7A5;font:600 11px 'Outfit';display:flex;align-items:center;justify-content:center;padding:0 6px">{{ unread }}</span></sc-if>
+          </button>
+        </sc-if>
+        <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+          <a href="Rooms.dc.html" style="height:46px;padding:0 24px;display:flex;align-items:center;gap:10px;background:#4E1617;color:#F1D7A5;text-decoration:none;font-weight:600;font-size:14px;letter-spacing:.04em;border-radius:999px;transition:transform .25s,background .25s" style-hover="background:#174C38;color:#F1D7A5;transform:translateY(-1px)">Book Now <span aria-hidden="true">→</span></a>
+        </sc-if>
+        <sc-if value="{{ narrow }}">
+          <button onClick="{{ toggleMenu }}" aria-label="Open menu" aria-expanded="{{ menuOpen }}" style="width:46px;height:46px;border:1px solid rgba(78,22,23,.25);background:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;border-radius:50%">
+            <span style="width:18px;height:2px;background:#4E1617"></span><span style="width:18px;height:2px;background:#4E1617"></span>
+          </button>
+        </sc-if>
+        <sc-if value="{{ acctOpen }}">
+          <div role="menu" style="position:absolute;top:58px;right:0;width:250px;background:#FFFFFF;border:1px solid rgba(78,22,23,.14);box-shadow:0 24px 50px rgba(78,22,23,.16);padding:8px;display:flex;flex-direction:column;border-radius:14px">
+            <div style="padding:10px 12px 12px;border-bottom:1px solid rgba(78,22,23,.1);margin-bottom:6px"><div style="font-weight:600;font-size:14px">{{ me.name }}</div><div style="font-size:13px;color:#6A4744">{{ me.email }}</div></div>
+            <a role="menuitem" href="Dashboard.dc.html" style="padding:10px 12px;color:#4E1617;text-decoration:none;font-size:14px;border-radius:8px" style-hover="background:#F2F2F2;color:#4E1617">Dashboard</a>
+            <a role="menuitem" href="My%20Bookings.dc.html" style="padding:10px 12px;color:#4E1617;text-decoration:none;font-size:14px;border-radius:8px" style-hover="background:#F2F2F2;color:#4E1617">My Bookings</a>
+            <a role="menuitem" href="Profile.dc.html" style="padding:10px 12px;color:#4E1617;text-decoration:none;font-size:14px;border-radius:8px" style-hover="background:#F2F2F2;color:#4E1617">Profile</a>
+            <a role="menuitem" href="Notifications.dc.html" style="padding:10px 12px;color:#4E1617;text-decoration:none;font-size:14px;display:flex;justify-content:space-between;border-radius:8px" style-hover="background:#F2F2F2;color:#4E1617"><span>Notifications</span><span style="color:#6A4744">{{ unreadLabel }}</span></a>
+            <button role="menuitem" onClick="{{ logout }}" style="text-align:left;padding:10px 12px;background:transparent;border:none;border-top:1px solid rgba(78,22,23,.1);margin-top:6px;color:#4E1617;font-size:14px;cursor:pointer" style-hover="background:#F2F2F2">Logout</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <sc-if value="{{ mobileMenu }}">
+      <nav aria-label="Mobile" style="border-top:1px solid rgba(78,22,23,.12);padding:8px 24px 24px;display:flex;flex-direction:column;background:#F2F2F2">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(78,22,23,.1)"><span data-no-i18n="1" style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">Language · Bahasa</span><button data-no-i18n="1" onClick="{{ toggleLang }}" aria-label="{{ langAria }}" style="height:44px;padding:4px;display:flex;align-items:center;gap:2px;background:#FFFFFF;border:1px solid rgba(78,22,23,.18);border-radius:999px;cursor:pointer;font:600 12px 'Outfit';letter-spacing:.06em">
+          <span style="height:34px;min-width:36px;padding:0 8px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:{{ enBg }};color:{{ enFg }};transition:background .3s,color .3s">EN</span>
+          <span style="height:34px;min-width:36px;padding:0 8px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:{{ msBg }};color:{{ msFg }};transition:background .3s,color .3s">BM</span>
+        </button></div>
+        <sc-for list="{{ navItems }}" as="n">
+          <a href="{{ n.href }}" aria-current="{{ n.current }}" style="padding:16px 0;border-bottom:1px solid rgba(78,22,23,.1);color:#4E1617;text-decoration:none;font:700 22px 'Comfortaa';display:flex;justify-content:space-between;align-items:center">{{ n.label }}<span aria-hidden="true" style="font-size:16px">→</span></a>
+        </sc-for>
+        <a href="Rooms.dc.html" style="margin-top:20px;height:52px;display:flex;align-items:center;justify-content:center;background:#4E1617;color:#F1D7A5;text-decoration:none;font-weight:600;letter-spacing:.04em;border-radius:999px">Book Now</a>
+      </nav>
+    </sc-if>
+  </header>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;80px&quot;},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;rooms&quot;,&quot;facilities&quot;,&quot;gallery&quot;,&quot;about&quot;,&quot;contact&quot;,&quot;&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { w: window.innerWidth, menu: false, acct: false, ready: !!window.AureliaStore, badPhoto: '' };
+  componentDidMount() {
+    this._pf = e => { const S = window.AureliaStore, u = S && S.sessionUser('customer'); if (u && u.photoURL && e.target.getAttribute && e.target.getAttribute('src') === u.photoURL) this.setState({ badPhoto: u.photoURL }); }; document.addEventListener('aurelia-photofail', this._pf);
+    this._r = () => this.setState({ w: window.innerWidth }); window.addEventListener('resize', this._r);
+    this._l = () => this.forceUpdate(); window.addEventListener('aurelia-lang', this._l);
+    this._k = e => { if (e.key === 'Escape') this.setState({ menu: false, acct: false }); }; window.addEventListener('keydown', this._k);
+    const w = () => { if (window.AureliaStore) { this._un = window.AureliaStore.subscribe(() => this.forceUpdate()); this.setState({ ready: true }); } else this._t = setTimeout(w, 30); }; w();
+  }
+  componentWillUnmount() { document.removeEventListener('aurelia-photofail', this._pf); window.removeEventListener('aurelia-lang', this._l); window.removeEventListener('resize', this._r); window.removeEventListener('keydown', this._k); this._un && this._un(); clearTimeout(this._t); }
+  renderVals() {
+    const st = this.state; const wide = st.w >= 960; const active = this.props.active || '';
+    const defs = [['Home', 'Home.dc.html', 'home'], ['Rooms', 'Rooms.dc.html', 'rooms'], ['Facilities', 'Facilities.dc.html', 'facilities'], ['Gallery', 'Gallery.dc.html', 'gallery'], ['About', 'About.dc.html', 'about'], ['Contact', 'Contact.dc.html', 'contact']];
+    const navItems = defs.map(([label, href, key]) => ({ label, href, current: key === active ? 'page' : undefined, bg: key === active ? '#4E1617' : 'transparent', fg: key === active ? '#F1D7A5' : '#4E1617' }));
+    const S = window.AureliaStore; const me = S && st.ready ? S.sessionUser('customer') : null;
+    const unread = me ? S.notificationsFor(me).filter(n => !n.read).length : 0;
+    const ms = !!(window.AureliaI18n && window.AureliaI18n.lang === 'ms');
+    const nm = me ? String(me.name || me.email || 'Guest') : ''; const photo = me && me.photoURL && me.photoURL !== st.badPhoto ? me.photoURL : '';
+    return {
+      toggleLang: () => window.AureliaI18n && window.AureliaI18n.toggle(), langAria: ms ? 'Switch to English' : 'Tukar ke Bahasa Melayu', enBg: ms ? 'transparent' : '#4E1617', enFg: ms ? '#4E1617' : '#F1D7A5', msBg: ms ? '#4E1617' : 'transparent', msFg: ms ? '#F1D7A5' : '#4E1617',
+      wide, narrow: !wide, navItems, loggedIn: !!me, loggedOut: !me, unread, unreadLabel: unread ? unread + ' new' : '',
+      me: me ? { name: nm, first: nm.split(' ')[0], email: me.email || '', initial: nm.charAt(0).toUpperCase(), photo, noPhoto: !photo } : {},
+      acctOpen: !!(st.acct && me), mobileMenu: st.menu && !wide, menuOpen: st.menu,
+      toggleAcct: () => this.setState(s => ({ acct: !s.acct, menu: false })), toggleMenu: () => this.setState(s => ({ menu: !s.menu, acct: false })),
+      logout: async () => {
+        if (this._out) return; this._out = true;
+        await S.logout('customer');
+        window.AureliaUI && window.AureliaUI.flash('You have been signed out.'); location.href = 'Home.dc.html';
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Gallery — AURELIA STAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="../shared/aurelia-i18n.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Gallery" style="min-height:100vh;background:#F2F2F2">
+<dc-import name="SiteHeader" active="gallery" hint-size="100%,74px"></dc-import>
+<main style="max-width:1280px;margin:0 auto;padding:clamp(40px,6vw,72px) 24px 96px">
+  <h1 data-reveal="up" style="margin:0 0 28px;font:700 clamp(40px,6vw,80px) 'Comfortaa';line-height:1">Gallery</h1>
+  <div role="tablist" aria-label="Gallery categories" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px">
+    <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4">
+      <button role="tab" aria-selected="{{ c.active }}" onClick="{{ c.onClick }}" style="height:42px;padding:0 20px;border:1px solid #4E1617;background:{{ c.bg }};color:{{ c.fg }};font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;transition:background .25s,color .25s">{{ c.label }}</button>
+    </sc-for>
+  </div>
+  <div style="columns:3 280px;column-gap:14px">
+    <sc-for list="{{ items }}" as="g" hint-placeholder-count="9">
+      <button data-reveal="up" data-reveal-delay="{{ g.delay }}" onClick="{{ g.open }}" aria-label="{{ g.aria }}" style="position:relative;display:block;width:100%;margin:0 0 14px;padding:0;border:none;border-radius:18px;overflow:hidden;cursor:zoom-in;break-inside:avoid;background:#CBCBCB">
+        <img src="{{ g.thumb }}" alt="{{ g.label }}" loading="lazy" style="width:100%;aspect-ratio:{{ g.ratio }};object-fit:cover;display:block;transition:transform .7s cubic-bezier(.16,.8,.24,1)" style-hover="transform:scale(1.05)">
+        <span style="position:absolute;left:12px;bottom:12px;font:600 12px 'Outfit';background:rgba(242,242,242,.92);color:#4E1617;padding:6px 10px;border-radius:999px">{{ g.label }}</span>
+      </button>
+    </sc-for>
+  </div>
+</main>
+<sc-if value="{{ lb.open }}">
+  <div role="dialog" aria-modal="true" aria-label="Image viewer" onClick="{{ close }}" style="position:fixed;inset:0;z-index:80;background:rgba(30,8,9,.92);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stop }}" style="width:min(1100px,100%);display:flex;flex-direction:column;gap:14px">
+      <img src="{{ lb.src }}" alt="{{ lb.label }}" style="width:100%;max-height:76vh;object-fit:contain;display:block;border-radius:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;color:#F1D7A5;flex-wrap:wrap">
+        <span style="font:600 15px 'Outfit'">{{ lb.label }} <span style="font:500 13px 'JetBrains Mono';opacity:.8;margin-left:10px">{{ lb.counter }}</span></span>
+        <div style="display:flex;gap:8px">
+          <button onClick="{{ prev }}" aria-label="Previous image" style="height:44px;padding:0 18px;background:transparent;border:1px solid #F1D7A5;color:#F1D7A5;cursor:pointer;font-weight:600;border-radius:999px">← Prev</button>
+          <button onClick="{{ next }}" aria-label="Next image" style="height:44px;padding:0 18px;background:transparent;border:1px solid #F1D7A5;color:#F1D7A5;cursor:pointer;font-weight:600;border-radius:999px">Next →</button>
+          <button onClick="{{ close }}" aria-label="Close" style="height:44px;padding:0 18px;background:#F1D7A5;border:none;color:#4E1617;cursor:pointer;font-weight:600;border-radius:999px">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+<dc-import name="SiteFooter" hint-size="100%,520px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { cat: 'All', idx: -1 };
+  componentDidMount() {
+    const w = () => window.AureliaUI ? this.forceUpdate() : (this._t = setTimeout(w, 30)); w();
+    this._k = e => { if (this.state.idx < 0) return; if (e.key === 'Escape') this.setState({ idx: -1 }); if (e.key === 'ArrowRight') this.step(1); if (e.key === 'ArrowLeft') this.step(-1); };
+    window.addEventListener('keydown', this._k);
+  }
+  componentWillUnmount() { clearTimeout(this._t); window.removeEventListener('keydown', this._k); }
+  step(d) { const n = this._n || 1; this.setState(s => ({ idx: (s.idx + d + n) % n })); }
+  renderVals() {
+    const U = window.AureliaUI; const st = this.state;
+    const all = U ? U.GALLERY : []; const items = all.filter(g => st.cat === 'All' || g.cat === st.cat); this._n = items.length;
+    const cur = items[st.idx];
+    return {
+      cats: ['All', 'Rooms', 'Hotel', 'Facilities'].map(c => ({ label: c, active: st.cat === c, bg: st.cat === c ? '#4E1617' : 'transparent', fg: st.cat === c ? '#F1D7A5' : '#4E1617', onClick: () => this.setState({ cat: c, idx: -1 }) })),
+      items: items.map((g, i) => ({ ...g, ratio: ['4/5', '4/3', '1/1'][i % 3], delay: (i % 3) * 80, aria: 'Open image: ' + g.label, open: () => this.setState({ idx: i }) })),
+      lb: cur ? { open: true, src: cur.src, label: cur.label, counter: (st.idx + 1) + ' / ' + items.length } : { open: false },
+      close: () => this.setState({ idx: -1 }), prev: () => this.step(-1), next: () => this.step(1), stop: e => e.stopPropagation()
+    };
+  }
+}
+</script>
+</body>
+</html>

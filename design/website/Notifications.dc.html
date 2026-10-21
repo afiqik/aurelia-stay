@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Notifications — AURELIA STAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="../shared/aurelia-i18n.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#174C38}
+a:hover{color:#4E1617}
+button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Notifications" style="min-height:100vh;background:#F2F2F2">
+<dc-import name="SiteHeader" active="" hint-size="100%,74px"></dc-import>
+<main style="max-width:780px;margin:0 auto;padding:56px 24px 96px">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+    <h1 data-reveal="up" style="margin:0;font:700 clamp(32px,4.5vw,48px) 'Comfortaa'">Notifications</h1>
+    <button onClick="{{ markAll }}" disabled="{{ busy }}" style="height:42px;padding:0 18px;background:transparent;border:1px solid rgba(78,22,23,.3);color:#4E1617;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;opacity:{{ btnOpacity }}">Mark all as read</button>
+  </div>
+  <sc-if value="{{ err }}"><div role="alert" style="margin-bottom:14px;padding:12px 14px;background:#EBD9D8;font-size:14px;font-weight:500;border-radius:12px">{{ err }}</div></sc-if>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ notes }}" as="n" hint-placeholder-count="3">
+      <button data-reveal="up" onClick="{{ n.onClick }}" style="text-align:left;padding:18px 20px;background:{{ n.bg }};border:1px solid rgba(78,22,23,.10);border-radius:18px;display:flex;gap:14px;cursor:pointer;color:#4E1617">
+        <span style="width:10px;height:10px;margin-top:6px;flex:none;border-radius:50%;background:{{ n.dot }}"></span>
+        <span style="display:flex;flex-direction:column;gap:4px"><span style="font-weight:{{ n.weight }};font-size:16px">{{ n.title }}</span><span style="font-size:14px;color:#6A4744">{{ n.message }}</span><span style="font-size:12px;color:#6A4744">{{ n.ago }}</span></span>
+      </button>
+    </sc-for>
+    <sc-if value="{{ empty }}"><div style="padding:40px;text-align:center;color:#6A4744">You're all caught up.</div></sc-if>
+  </div>
+</main>
+<dc-import name="SiteFooter" hint-size="100%,520px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { me: null, busy: false, err: '' };
+  componentDidMount() { const w = () => { if (!(window.AureliaStore && window.AureliaUI)) return (this._t = setTimeout(w, 30)); const me = window.AureliaUI.requireCustomer(); if (me) { this._ws = window.AureliaUI.watchSession('customer'); this._un = window.AureliaStore.subscribe(() => this.forceUpdate()); this.setState({ me }); } }; w(); }
+  componentWillUnmount() { clearTimeout(this._t); this._un && this._un(); this._ws && this._ws(); }
+  renderVals() {
+    const S = window.AureliaStore; const st = this.state; const me = st.me;
+    if (!me) return { notes: [], btnOpacity: 1 };
+    const list = S.notificationsFor(me);   // live RTDB feed: re-renders through S.subscribe, so mutations only report failures
+    return {
+      notes: list.map(n => ({ title: n.title, message: n.message, ago: S.ago(n.at), dot: n.read ? '#CBCBCB' : '#4E1617', bg: n.read ? 'transparent' : '#FFFFFF', weight: n.read ? 500 : 700, onClick: async () => { if (n.read) return; const r = await S.markRead(n.id); this.setState({ err: r.ok ? '' : r.error }); } })),
+      empty: !list.length, err: st.err, busy: st.busy, btnOpacity: st.busy ? .7 : 1,
+      markAll: async () => { if (st.busy) return; this.setState({ busy: true, err: '' }); const r = await S.markAllRead(me); this.setState({ busy: false, err: r.ok ? '' : r.error }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

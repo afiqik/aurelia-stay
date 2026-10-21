@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Booking Details — AURELIA STAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="../shared/aurelia-i18n.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#174C38}
+a:hover{color:#4E1617}
+button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Booking Details" style="min-height:100vh;background:#F2F2F2">
+<dc-import name="SiteHeader" active="" hint-size="100%,74px"></dc-import>
+<main style="max-width:860px;margin:0 auto;padding:48px 24px 96px">
+  <a href="My%20Bookings.dc.html" style="display:inline-flex;align-items:center;min-height:44px;font-size:14px;margin-bottom:20px">← My Bookings</a>
+  <sc-if value="{{ blocked }}">
+    <div style="padding:clamp(28px,5vw,48px);background:#FFFFFF;border-radius:26px;display:flex;flex-direction:column;gap:14px;align-items:flex-start">
+      <div style="font:700 80px 'Comfortaa';line-height:1">{{ blocked.code }}</div>
+      <h1 style="margin:0;font:700 26px 'Comfortaa'">{{ blocked.title }}</h1>
+      <p style="margin:0;color:#6A4744">{{ blocked.text }}</p>
+      <a href="My%20Bookings.dc.html" style="height:50px;padding:0 24px;display:flex;align-items:center;background:#4E1617;color:#F1D7A5;text-decoration:none;font-weight:600;border-radius:999px">Go to My Bookings</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{ found }}" hint-placeholder-val="{{ true }}">
+    <div data-reveal="up" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.12);border-radius:30px;overflow:hidden">
+      <div style="height:220px;overflow:hidden;background:#CBCBCB"><img data-parallax="0.06" data-parallax-scale="1.15" src="{{ bd.img }}" alt="{{ bd.typeName }}" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      <div style="padding:clamp(24px,4vw,44px);display:flex;flex-direction:column;gap:24px">
+        <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start">
+          <div><h1 style="margin:0 0 6px;font:700 30px 'Comfortaa'">Booking Details</h1><div style="font:500 16px 'JetBrains Mono'">{{ bd.ref }}</div></div>
+          <span style="padding:7px 14px;background:{{ bd.chip.bg }};color:{{ bd.chip.fg }};font:600 12px 'Outfit';letter-spacing:.12em;text-transform:uppercase;border-radius:999px">{{ bd.chip.label }}</span>
+        </div>
+        <dl style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;border-top:1px solid rgba(78,22,23,.12);padding-top:22px">
+          <div><dt style="font-size:13px;color:#6A4744">Guest</dt><dd style="margin:4px 0 0;font-weight:600">{{ bd.guestName }}</dd><dd style="margin:2px 0 0;font-size:14px;color:#6A4744;word-break:break-all">{{ bd.guestEmail }}</dd></div>
+          <div><dt style="font-size:13px;color:#6A4744">Room</dt><dd style="margin:4px 0 0;font-weight:600">{{ bd.typeName }}</dd><dd style="margin:2px 0 0;font-size:14px;color:#6A4744">Room {{ bd.roomNo }}</dd></div>
+          <div><dt style="font-size:13px;color:#6A4744">Check-in</dt><dd style="margin:4px 0 0;font-weight:600">{{ bd.ciL }}</dd></div>
+          <div><dt style="font-size:13px;color:#6A4744">Check-out</dt><dd style="margin:4px 0 0;font-weight:600">{{ bd.coL }}</dd></div>
+          <div><dt style="font-size:13px;color:#6A4744">Guests</dt><dd style="margin:4px 0 0;font-weight:600">{{ bd.guests }}</dd></div>
+          <div><dt style="font-size:13px;color:#6A4744">Payment</dt><dd style="margin:4px 0 0;font-weight:600">{{ bd.payment }}</dd></div>
+        </dl>
+        <div style="background:#F2F2F2;padding:20px;border-radius:16px;display:flex;flex-direction:column;gap:8px;font-size:15px">
+          <div style="display:flex;justify-content:space-between"><span>{{ bd.rateLine }}</span><span>{{ bd.subtotalL }}</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Service Fee</span><span>{{ bd.feeL }}</span></div>
+          <div style="display:flex;justify-content:space-between;font-weight:700;font-size:19px;border-top:1px solid rgba(78,22,23,.2);padding-top:10px"><span>Total</span><span>{{ bd.totalL }}</span></div>
+        </div>
+        <sc-if value="{{ bd.note }}"><div style="font-size:14px;color:#6A4744">{{ bd.note }}</div></sc-if>
+        <sc-if value="{{ err }}"><div role="alert" style="padding:12px;background:#EBD9D8;font-size:14px;font-weight:500;border-radius:12px">{{ err }}</div></sc-if>
+        <sc-if value="{{ bd.canCancel }}">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <sc-if value="{{ confirmClosed }}"><button onClick="{{ askCancel }}" style="height:48px;padding:0 22px;background:transparent;border:1px solid #8A1F21;color:#8A1F21;font-weight:600;cursor:pointer;border-radius:999px">Cancel Booking</button></sc-if>
+            <sc-if value="{{ confirming }}"><span style="font-weight:600">Are you sure? This can't be undone.</span><button onClick="{{ doCancel }}" disabled="{{ busy }}" style="height:48px;padding:0 22px;background:#8A1F21;border:none;color:#FFFFFF;font-weight:600;cursor:pointer;border-radius:999px;opacity:{{ btnOpacity }}">{{ cancelLabel }}</button><button onClick="{{ keep }}" style="height:48px;padding:0 22px;background:transparent;border:1px solid rgba(78,22,23,.35);color:#4E1617;font-weight:600;cursor:pointer;border-radius:999px">Keep it</button></sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+</main>
+<dc-import name="SiteFooter" hint-size="100%,520px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { me: null, confirming: false, err: '', busy: false };
+  componentDidMount() { const w = () => { if (!(window.AureliaStore && window.AureliaUI)) return (this._t = setTimeout(w, 30)); const me = window.AureliaUI.requireCustomer(); if (me) { this._ws = window.AureliaUI.watchSession('customer'); this._un = window.AureliaStore.subscribe(() => this.forceUpdate()); this.setState({ me }); } }; w(); }
+  componentWillUnmount() { clearTimeout(this._t); this._un && this._un(); this._ws && this._ws(); }
+  renderVals() {
+    const S = window.AureliaStore, U = window.AureliaUI; const st = this.state; const me = st.me;
+    if (!me) return { found: true, bd: { chip: {} } };
+    const ref = U.q().ref || ''; const b = S.booking(ref);
+    if (!b) {   // customers only read their own bookings: a booking that exists but is not theirs still shows up in the public night index
+      const m = /^AUR-\d{4}-(\d{5})$/.exec(ref);
+      if (m && S.db.roomNights.some(n => n.bookingId === 'b' + Number(m[1]))) return { found: false, blocked: { code: '403', title: "You don't have access to this booking.", text: 'Bookings can only be viewed by the guest who made them.' }, bd: { chip: {} } };
+      return { found: false, blocked: { code: '404', title: 'Booking not found.', text: 'There is no booking with reference ' + ref + '.' }, bd: { chip: {} } };
+    }
+    if (b.customerId !== me.id) return { found: false, blocked: { code: '403', title: "You don't have access to this booking.", text: 'Bookings can only be viewed by the guest who made them.' }, bd: { chip: {} } };
+    const vm = U.bookingVM(b); const canCancel = b.status === 'CONFIRMED' && S.today() < b.checkIn && S.db.settings.allowCancel;
+    const note = b.status === 'CANCELLED' ? 'Cancelled on ' + (b.cancelledAt && !isNaN(new Date(b.cancelledAt)) ? S.fmtDate(S.isoOf(new Date(b.cancelledAt))) : '—') + ' · ' + (b.cancellationReason || '—') : b.status === 'CONFIRMED' && !canCancel ? 'This booking can no longer be cancelled online. Please contact the hotel.' : '';
+    return {
+      found: true, blocked: null, err: st.err, confirming: st.confirming, confirmClosed: !st.confirming, busy: st.busy, btnOpacity: st.busy ? .7 : 1, cancelLabel: st.busy ? 'Cancelling…' : 'Yes, cancel',
+      bd: { ...vm, img: U.img(U.TYPE_IMG[b.typeId], 1200), canCancel, note },
+      askCancel: () => this.setState({ confirming: true, err: '' }), keep: () => this.setState({ confirming: false }),
+      doCancel: async () => {
+        if (st.busy) return; this.setState({ busy: true, err: '' });
+        const r = await S.cancelBooking(b.ref, me.id);
+        this.setState({ busy: false, confirming: false, err: r.ok ? '' : r.error });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

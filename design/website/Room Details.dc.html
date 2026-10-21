@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Room Details — AURELIA STAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="../shared/aurelia-i18n.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,select,textarea,button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Room Details" style="min-height:100vh;background:#F2F2F2">
+<dc-import name="SiteHeader" active="rooms" hint-size="100%,74px"></dc-import>
+<sc-if value="{{ missing }}">
+  <main style="max-width:720px;margin:0 auto;padding:120px 24px;display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+    <div style="font:700 96px 'Comfortaa';line-height:1">404</div>
+    <h1 style="margin:0;font:700 26px 'Comfortaa'">Room not found.</h1>
+    <p style="margin:0;color:#6A4744">We couldn't find the room you're looking for. It may have been removed.</p>
+    <a href="Rooms.dc.html" style="height:50px;padding:0 24px;display:flex;align-items:center;background:#4E1617;color:#F1D7A5;text-decoration:none;font-weight:600;border-radius:999px">Browse Rooms</a>
+  </main>
+</sc-if>
+<sc-if value="{{ found }}" hint-placeholder-val="{{ true }}">
+<main style="max-width:1280px;margin:0 auto;padding:32px 24px 96px">
+  <nav aria-label="Breadcrumb" style="font-size:14px;margin-bottom:22px;display:flex;gap:8px;color:#6A4744"><a href="Rooms.dc.html" style="display:inline-flex;align-items:center;min-height:44px;">Rooms</a><span style="align-self:center">/</span><span>{{ rt.name }}</span></nav>
+  <div data-reveal="clip" style="height:clamp(320px,58vh,600px);border-radius:32px;overflow:hidden;background:#CBCBCB;position:relative">
+    <img data-parallax="0.1" data-parallax-scale="1.16" src="{{ rt.imgLarge }}" alt="{{ rt.name }}" style="width:100%;height:100%;object-fit:cover;display:block">
+    <div style="position:absolute;left:0;right:0;bottom:0;padding:clamp(20px,4vw,44px);background:linear-gradient(0deg,rgba(30,8,9,.55),rgba(30,8,9,0));color:#F2F2F2;display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+      <h1 style="margin:0;font:700 clamp(38px,6vw,72px) 'Comfortaa';line-height:1">{{ rt.name }}</h1>
+      <div style="font-size:17px;background:#F1D7A5;color:#4E1617;padding:12px 18px;border-radius:999px"><strong style="font-size:22px">{{ rt.priceLabel }}</strong> / night</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:48px;align-items:start;margin-top:48px">
+    <div style="display:flex;flex-direction:column;gap:40px">
+      <div data-reveal="up"><h2 style="margin:0 0 14px;font:700 26px 'Comfortaa'">About this room</h2><p style="margin:0;font-size:18px;line-height:1.7;max-width:620px">{{ rt.description }}</p></div>
+      <div data-reveal="up">
+        <h2 style="margin:0 0 14px;font:700 26px 'Comfortaa'">Room Information</h2>
+        <dl style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));border-top:1px solid #4E1617">
+          <div style="padding:18px 0;border-bottom:1px solid rgba(78,22,23,.14)"><dt style="font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">Room size</dt><dd style="margin:6px 0 0;font:700 22px 'Comfortaa'">{{ rt.sizeLabel }}</dd></div>
+          <div style="padding:18px 0;border-bottom:1px solid rgba(78,22,23,.14)"><dt style="font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">Capacity</dt><dd style="margin:6px 0 0;font:700 22px 'Comfortaa'">{{ rt.guestsLabel }}</dd></div>
+          <div style="padding:18px 0;border-bottom:1px solid rgba(78,22,23,.14)"><dt style="font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">Bed</dt><dd style="margin:6px 0 0;font:700 22px 'Comfortaa'">{{ rt.bed }}</dd></div>
+          <div style="padding:18px 0;border-bottom:1px solid rgba(78,22,23,.14)"><dt style="font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">Bathroom</dt><dd style="margin:6px 0 0;font:700 22px 'Comfortaa'">Private</dd></div>
+        </dl>
+      </div>
+      <div data-reveal="up">
+        <h2 style="margin:0 0 14px;font:700 26px 'Comfortaa'">Amenities</h2>
+        <ul style="margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{ rt.features }}" as="a"><li style="padding:9px 14px;border:1px solid rgba(78,22,23,.2);border-radius:999px;font-size:14px;background:#FFFFFF">{{ a }}</li></sc-for></ul>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+        <div data-reveal="up" style="aspect-ratio:4/3;border-radius:20px;overflow:hidden;background:#CBCBCB"><img src="{{ extra1 }}" alt="Private bathroom" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div data-reveal="up" data-reveal-delay="120" style="aspect-ratio:4/3;border-radius:20px;overflow:hidden;background:#CBCBCB"><img src="{{ extra2 }}" alt="Fresh linen" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      </div>
+    </div>
+
+    <aside style="position:sticky;top:100px">
+      <form data-reveal="up" onSubmit="{{ check }}" noValidate="{{ true }}" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.12);border-radius:24px;box-shadow:0 24px 50px rgba(78,22,23,.08);padding:26px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="grid-column:1/-1;font:700 20px 'Comfortaa'">Check Availability</div>
+        <label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Check-in<input type="date" name="checkIn" value="{{ rd.ci }}" min="{{ todayIso }}" onChange="{{ onRd.ci }}" style="height:48px;padding:0 10px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label>
+        <label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Check-out<input type="date" name="checkOut" value="{{ rd.co }}" min="{{ todayIso }}" onChange="{{ onRd.co }}" style="height:48px;padding:0 10px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label>
+        <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Guests<input type="number" name="guests" min="1" max="4" value="{{ rd.g }}" onChange="{{ onRd.g }}" style="height:48px;padding:0 10px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label>
+        <button type="submit" style="grid-column:1/-1;height:50px;background:#174C38;color:#F1D7A5;border:none;font-weight:600;font-size:15px;cursor:pointer;border-radius:12px" style-hover="background:#0F3827">Check Availability</button>
+        <sc-if value="{{ view.error }}"><div role="alert" style="grid-column:1/-1;padding:12px 14px;background:#EBD9D8;font-size:14px;font-weight:500;border-radius:12px">{{ view.error }}</div></sc-if>
+        <sc-if value="{{ view.ok }}">
+          <div role="status" style="grid-column:1/-1;padding:16px;background:#DCE8E1;color:#174C38;display:flex;flex-direction:column;gap:12px;border-radius:14px">
+            <div style="font-weight:600">{{ view.message }}</div>
+            <div style="font-size:14px">{{ view.priceLine }}</div>
+            <a href="{{ view.bookHref }}" style="height:48px;display:flex;align-items:center;justify-content:center;background:#4E1617;color:#F1D7A5;text-decoration:none;font-weight:600;border-radius:999px">Book Now</a>
+          </div>
+        </sc-if>
+        <sc-if value="{{ view.none }}"><div role="status" style="grid-column:1/-1;padding:14px;background:#EBD9D8;font-size:14px;font-weight:500;border-radius:12px">{{ view.message }}</div></sc-if>
+        <div style="grid-column:1/-1;font-size:13px;color:#6A4744">Check-in from {{ s.checkInLabel }} · Check-out by {{ s.checkOutLabel }} · RM{{ s.serviceFee }} service fee per booking</div>
+      </form>
+    </aside>
+  </div>
+</main>
+</sc-if>
+<dc-import name="SiteFooter" hint-size="100%,520px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { ready: false, rd: { ci: '', co: '', g: '2' }, err: '', res: null };
+  componentDidMount() {
+    const w = () => {
+      if (!(window.AureliaStore && window.AureliaUI)) return (this._t = setTimeout(w, 30));
+      const S = window.AureliaStore, T = S.today(); this._un = S.subscribe(() => this.forceUpdate());
+      this.setState({ ready: true, rd: { ci: S.addDays(T, 1), co: S.addDays(T, 3), g: '2' } });
+    }; w();
+  }
+  componentWillUnmount() { this._un && this._un(); clearTimeout(this._t); }
+  setR(k) { return e => { const v = e.target.value; this.setState(s => ({ rd: { ...s.rd, [k]: v }, res: null, err: '' })); }; }
+  renderVals() {
+    const st = this.state; const S = window.AureliaStore, U = window.AureliaUI;
+    if (!st.ready) return { found: true, rt: { features: [] }, view: {}, s: {}, rd: st.rd, onRd: {} };
+    const id = U.q().id; const raw = /^\d+$/.test(id || '') ? S.type(id) : null;
+    if (!raw || !raw.active) return { missing: true, found: false, rt: { features: [] }, view: {}, s: {} };
+    const rt = U.typeVM(raw); const s = U.settings(); let view = { error: st.err };
+    const vErr = S.validateStay(st.rd.ci, st.rd.co, st.rd.g);
+    const live = vErr ? null : { ...S.availability(st.rd.ci, st.rd.co, Number(st.rd.g)).find(x => x.typeId === raw.id), ci: st.rd.ci, co: st.rd.co, g: Number(st.rd.g) };
+    if (vErr) view = { error: vErr };
+    if (live) {
+      const r = live; const n = S.nightsBetween(r.ci, r.co);
+      if (!r.fits) view = { none: true, message: raw.name + ' fits up to ' + rt.guestsLabel.toLowerCase() + '. Try a larger room type.' };
+      else if (!r.available) view = { none: true, message: 'No rooms available for your selected dates.' };
+      else view = { ok: true, message: U.plural(r.available, 'room') + ' available for your dates', priceLine: S.rm(raw.price) + ' × ' + U.plural(n, 'night') + ' + ' + S.rm(s.serviceFee) + ' service fee = ' + S.rm(raw.price * n + s.serviceFee), bookHref: 'Booking.dc.html?type=' + raw.id + '&ci=' + r.ci + '&co=' + r.co + '&g=' + r.g };
+    }
+    return {
+      found: true, missing: false, rt, s, view, rd: st.rd, todayIso: S.today(), extra1: U.img('bath', 800), extra2: U.img('room3', 800),
+      onRd: { ci: this.setR('ci'), co: this.setR('co'), g: this.setR('g') },
+      check: e => {
+        e.preventDefault(); const { ci, co, g } = st.rd; const err = S.validateStay(ci, co, g);
+        if (err) return this.setState({ err, res: null });
+        const a = S.availability(ci, co, Number(g)).find(x => x.typeId === raw.id);
+        this.setState({ err: '', res: { ...a, ci, co, g: Number(g) } });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+rules_version = '2';
+
+// AURELIA STAY - Cloud Firestore security rules (contract: docs/FIREBASE_ARCHITECTURE.md sections 4 + 11).
+// Layout: 1 helpers, 2 static catalogue, 3 settings lookups, 4 per-collection rules, 5 default deny.
+// The default administrator e-mail below must stay in sync with core/config.js and database.rules.json.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------- 1. identity helpers
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function emailLower() { return request.auth.token.get('email', '').lower(); }
+    function verified() { return signedIn() && request.auth.token.get('email_verified', false) == true; }
+    function isDefaultAdmin() { return verified() && emailLower() == 'admin@aureliastay.local'; }
+    function userPath(id) { return /databases/$(database)/documents/users/$(id); }
+    function hasProfile() { return exists(userPath(uid())); }
+    function profile() { return get(userPath(uid())).data; }
+    function role() { return profile().role; }
+    function active() { return verified() && hasProfile() && profile().status == 'active'; }
+    function isAdmin() { return active() && role() == 'admin'; }
+    function isManager() { return active() && role() == 'hotel_manager'; }
+    function isStaff() { return isAdmin() || isManager(); }
+    function isCustomer() { return active() && role() == 'customer'; }
+
+    // generic field helpers
+    function aff() { return request.resource.data.diff(resource.data).affectedKeys(); }
+    function txt(d, k, max) { return d.get(k, '') is string && d.get(k, '').size() <= max; }
+    function txtNull(d, k, max) { return d.get(k, null) == null || (d[k] is string && d[k].size() <= max); }
+    function isEmail(s) { return s is string && s.size() <= 200 && s.matches('[^\\s@]+@[^\\s@]+\\.[^\\s@]+'); }
+    function isDate(s) { return s is string && s.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}'); }
+
+    // ISO date helpers ('YYYY-MM-DD' <-> timestamp at 00:00Z); invalid dates raise an evaluation error (= deny)
+    function dateTs(s) { let p = s.split('-'); return timestamp.date(int(p[0]), int(p[1]), int(p[2])); }
+    function two(n) { return (n < 10 ? '0' : '') + string(n); }
+    function dateStr(ts) { return string(ts.year()) + '-' + two(ts.month()) + '-' + two(ts.day()); }
+
+    // ---------------------------------------------------------------- 2. static catalogue (works with an empty database)
+    // rooms 101-106 -> 1, 201-208 -> 2, 301-304 -> 3, 401-402 -> 4 (anything else -> ''); regexes keep the expression count low
+    function typeOfRoom(r) {
+      let n = string(r);
+      return n.matches('10[1-6]') ? '1' : n.matches('20[1-8]') ? '2' : n.matches('30[1-4]') ? '3' : n.matches('40[12]') ? '4' : '';
+    }
+    function defaultPrice(t) { return { '1': 80, '2': 85, '3': 90, '4': 95 }.get(t, 0); }
+    function capacityOf(t) { return { '1': 1, '2': 2, '3': 2, '4': 4 }.get(t, 0); }
+
+    // ---------------------------------------------------------------- 3. overrides: roomTypes/{id} + settings/main (doc present -> field override, absent -> default)
+    function typePath(t) { return /databases/$(database)/documents/roomTypes/$(t); }
+    function typePrice(t) { return exists(typePath(t)) ? get(typePath(t)).data.get('price', defaultPrice(t)) : defaultPrice(t); }
+    function typeActive(t) { return exists(typePath(t)) ? get(typePath(t)).data.get('active', true) : true; }
+    function settingsPath() { return /databases/$(database)/documents/settings/main; }
+    function setting(k, dflt) { return exists(settingsPath()) ? get(settingsPath()).data.get(k, dflt) : dflt; }
+
+    // ---------------------------------------------------------------- 4a. users
+    match /users/{userId} {
+      allow get: if signedIn() && (userId == uid() || isStaff());
+      allow list: if isStaff();
+      allow create: if userId == uid() && verified() && userCreateOk(request.resource.data);
+      allow update: if selfUpdateOk(userId) || adminStatusOk(userId);
+      allow delete: if false;
+
+      function inviteDoc() { return /databases/$(database)/documents/staffInvites/$(emailLower()); }
+      // role bootstrap (contract section 3): default admin -> admin(primary); invited e-mail -> invited role; everybody else -> customer
+      function roleBootstrapOk(d) {
+        return isDefaultAdmin()
+          ? d.role == 'admin' && d.get('primary', false) == true
+          : d.get('primary', false) == false
+            && (exists(inviteDoc()) ? d.role == get(inviteDoc()).data.role : d.role == 'customer');
+      }
+      function userCreateOk(d) {
+        return d.keys().hasOnly(['id', 'role', 'name', 'email', 'photoURL', 'phone', 'googleUid', 'status', 'authProvider', 'primary', 'createdAt', 'lastLoginAt', 'updatedAt', 'needsProfile'])
+          && d.keys().hasAll(['role', 'email', 'status'])
+          && d.email == emailLower() && d.status == 'active'
+          && d.get('id', uid()) == uid() && d.get('googleUid', uid()) == uid() && d.get('authProvider', 'google') == 'google'
+          && txt(d, 'name', 120) && txt(d, 'photoURL', 2000) && txt(d, 'phone', 40) && txt(d, 'createdAt', 40) && txtNull(d, 'lastLoginAt', 40) && txtNull(d, 'updatedAt', 40)
+          && d.get('needsProfile', false) is bool
+          && roleBootstrapOk(d);
+      }
+      // a user may only touch a few profile fields, never role/status/email/primary/googleUid
+      function selfUpdateOk(id) {
+        let d = request.resource.data;
+        return id == uid() && active()
+          && aff().hasOnly(['name', 'photoURL', 'phone', 'lastLoginAt', 'updatedAt', 'needsProfile'])
+          && txt(d, 'name', 120) && txt(d, 'photoURL', 2000) && txt(d, 'phone', 40) && txtNull(d, 'lastLoginAt', 40) && txtNull(d, 'updatedAt', 40)
+          && d.get('needsProfile', false) is bool;
+      }
+      // admin enables/disables other accounts - never itself, never the primary administrator
+      function adminStatusOk(id) {
+        return isAdmin() && id != uid() && resource.data.get('primary', false) != true
+          && aff().hasOnly(['status', 'updatedAt'])
+          && request.resource.data.status in ['active', 'disabled'] && txtNull(request.resource.data, 'updatedAt', 40);
+      }
+    }
+
+    // ---------------------------------------------------------------- 4b. staffInvites/{emailLower}
+    match /staffInvites/{inviteId} {
+      allow get: if isAdmin() || (verified() && inviteId == emailLower());
+      allow list: if isAdmin();
+      allow create: if isAdmin() && inviteOk(request.resource.data);
+      allow update: if (isAdmin() && inviteOk(request.resource.data)) || claimOk();
+      allow delete: if isAdmin();
+
+      function inviteOk(d) {
+        return d.keys().hasOnly(['email', 'name', 'phone', 'role', 'invitedBy', 'createdAt', 'claimedBy', 'claimedAt'])
+          && d.keys().hasAll(['email', 'role', 'invitedBy', 'createdAt'])
+          && isEmail(inviteId) && inviteId == inviteId.lower() && inviteId != 'admin@aureliastay.local'
+          && d.email == inviteId && d.role == 'hotel_manager' && d.invitedBy == uid()
+          && txt(d, 'name', 120) && txt(d, 'phone', 40) && txt(d, 'createdAt', 40);
+      }
+      // the invited Google account marks its own invitation as claimed (once) after its manager profile exists
+      function claimOk() {
+        return verified() && inviteId == emailLower()
+          && resource.data.get('claimedBy', null) == null
+          && aff().hasOnly(['claimedBy', 'claimedAt'])
+          && request.resource.data.claimedBy == uid() && request.resource.data.claimedAt is string
+          && getAfter(userPath(uid())).data.role == 'hotel_manager';
+      }
+    }
+
+    // ---------------------------------------------------------------- 4c. public catalogue: settings, roomTypes, rooms
+    match /settings/{id} {
+      allow read: if true;
+      allow create, update: if id == 'main' && isAdmin() && settingsOk(request.resource.data);
+      allow delete: if false;
+      function settingsOk(d) {
+        return (d.get('serviceFee', 0) is number && d.get('serviceFee', 0) >= 0 && d.get('serviceFee', 0) <= 500)
+          && (d.get('adminTimeout', 5) is int && d.get('adminTimeout', 5) >= 5 && d.get('adminTimeout', 5) <= 240)
+          && (d.get('managerTimeout', 5) is int && d.get('managerTimeout', 5) >= 5 && d.get('managerTimeout', 5) <= 240)
+          && d.get('allowOnline', true) is bool && d.get('allowWalkIn', true) is bool && d.get('allowCancel', true) is bool && d.get('auditLogging', true) is bool
+          && txt(d, 'hotelName', 200) && txt(d, 'address', 400) && txt(d, 'phone', 60) && txt(d, 'email', 200) && txt(d, 'checkInTime', 20) && txt(d, 'checkOutTime', 20);
+      }
+    }
+    match /roomTypes/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && id in ['1', '2', '3', '4'] && typeOk(request.resource.data);
+      allow delete: if false;
+      function typeOk(d) {
+        return (d.get('price', 1) is int && d.get('price', 1) >= 1 && d.get('price', 1) <= 5000)
+          && d.get('active', true) is bool && txt(d, 'description', 1000);
+      }
+    }
+    match /rooms/{number} {
+      allow read: if true;
+      allow create, update: if isStaff() && typeOfRoom(number) != ''
+        && request.resource.data.status in ['AVAILABLE', 'OCCUPIED', 'CLEANING', 'MAINTENANCE', 'OUT_OF_SERVICE'];
+      allow delete: if false;
+    }
+
+    // ---------------------------------------------------------------- 4d. counters/main (booking, hk, req = next numbers; missing = 1)
+    match /counters/{id} {
+      allow read: if active();
+      allow create: if id == 'main' && ctrCreateOk(request.resource.data);
+      allow update: if id == 'main' && ctrUpdateOk(request.resource.data);
+      allow delete: if false;
+
+      function ctrKeys() { return isStaff() ? ['booking', 'hk', 'req'] : ['booking']; }
+      // everyone increments by exactly 1; the admin may jump forward (sample-data loader) by at most 200
+      function ctrStep(d, k, old) { return d[k] is int && d[k] > old && d[k] - old <= (isAdmin() ? 200 : 1); }
+      // a non-admin booking-counter bump must come with the booking it numbers (bookings/b<old>, created by the same user in the same batch)
+      function ctrBookingBound(old) {
+        return isAdmin() || getAfter(/databases/$(database)/documents/bookings/$('b' + string(old))).data.createdBy == uid();
+      }
+      function ctrCreateKey(d, k) { return !(k in d) || (ctrStep(d, k, 1) && (k != 'booking' || ctrBookingBound(1))); }
+      function ctrUpdateKey(d, k) {
+        return !(k in aff()) || (ctrStep(d, k, resource.data.get(k, 1)) && (k != 'booking' || ctrBookingBound(resource.data.get('booking', 1))));
+      }
+      function ctrCreateOk(d) {
+        return active() && d.keys().hasOnly(ctrKeys()) && ctrCreateKey(d, 'booking') && ctrCreateKey(d, 'hk') && ctrCreateKey(d, 'req');
+      }
+      function ctrUpdateOk(d) {
+        return active() && aff().hasOnly(ctrKeys()) && ctrUpdateKey(d, 'booking') && ctrUpdateKey(d, 'hk') && ctrUpdateKey(d, 'req');
+      }
+    }
+
+    // ---------------------------------------------------------------- 4e. bookings
+    match /bookings/{bid} {
+      allow read: if active() && (isStaff() || resource.data.customerId == uid());
+      allow create: if bookingBase(bid, request.resource.data) && (
+        (isCustomer() && onlineOk(bid, request.resource.data))
+        || (isManager() && walkInOk(bid, request.resource.data))
+        || (isAdmin() && sampleOk(request.resource.data)));
+      allow update: if customerCancelOk(request.resource.data) || staffUpdateOk(request.resource.data);
+      allow delete: if isAdmin() && resource.data.get('sample', false) == true;
+
+      function bookingKeys() {
+        return ['id', 'ref', 'customerId', 'roomId', 'typeId', 'source', 'checkIn', 'checkOut', 'guests', 'roomPrice', 'nights', 'serviceFee', 'subtotal', 'total', 'status',
+          'guestName', 'guestEmail', 'guestPhone', 'payment', 'createdAt', 'createdBy', 'checkedInAt', 'checkedOutAt', 'cancelledAt', 'cancelledBy', 'cancellationReason', 'sample'];
+      }
+      function bookingRequired() {
+        return ['ref', 'customerId', 'roomId', 'typeId', 'source', 'checkIn', 'checkOut', 'guests', 'roomPrice', 'nights', 'serviceFee', 'subtotal', 'total', 'status', 'guestName', 'createdAt', 'createdBy'];
+      }
+      function counterAfter() { return getAfter(/databases/$(database)/documents/counters/main).data.booking; }
+      // booking id of the lock for the night checkOut-1, as it exists after this batch (error = lock missing)
+      function lastLockAfter(d) {
+        return getAfter(/databases/$(database)/documents/roomNights/$(string(d.roomId) + '_' + dateStr(dateTs(d.checkOut) - duration.value(1, 'd')))).data.bookingId;
+      }
+
+      // Firestore allows at most 20 document-access calls per batched write. A booking batch reads ~5 fixed docs (profile, room type,
+      // settings, counter, booking) plus one distinct lock doc per night (chain rule), so 5 + nights must stay <= 20 -> 14 nights max.
+      // (The local emulator only enforces the per-operation limit of 10, so this cannot be proven there - keep the margin.)
+      function maxNights() { return 14; }
+
+      // shape + stay arithmetic shared by every creator
+      function bookingBase(id, d) {
+        let t = string(d.typeId);
+        return d.keys().hasOnly(bookingKeys()) && d.keys().hasAll(bookingRequired())
+          && d.get('id', id) == id
+          && (d.roomId is int || d.roomId is string) && (d.typeId is int || d.typeId is string) && typeOfRoom(d.roomId) != '' && typeOfRoom(d.roomId) == t
+          && isDate(d.checkIn) && isDate(d.checkOut) && d.checkIn < d.checkOut
+          && d.nights is int && d.nights >= 1 && d.nights <= maxNights() && (dateTs(d.checkOut) - dateTs(d.checkIn)).seconds() == d.nights * 86400
+          && d.guests is int && d.guests >= 1 && d.guests <= capacityOf(t)
+          && d.roomPrice is number && d.serviceFee is number && d.subtotal == d.roomPrice * d.nights && d.total == d.subtotal + d.serviceFee
+          && d.guestName is string && d.guestName.size() >= 1 && d.guestName.size() <= 120
+          && txt(d, 'guestEmail', 200) && txt(d, 'guestPhone', 40) && txt(d, 'payment', 60) && d.createdAt is string && d.createdAt.size() <= 40
+          && d.get('sample', false) is bool;
+      }
+      // customer-or-walk-in creation: server-side pricing, id bound to the counter, every night locked by this booking
+      function liveOk(id, d) {
+        let t = string(d.typeId);
+        return d.status == 'CONFIRMED' && d.get('sample', false) == false && d.createdBy == request.auth.uid
+          && d.get('checkedInAt', null) == null && d.get('checkedOutAt', null) == null && d.get('cancelledAt', null) == null
+          && d.get('cancelledBy', null) == null && d.get('cancellationReason', null) == null
+          && typeActive(t) && d.roomPrice == typePrice(t) && d.serviceFee == setting('serviceFee', 10)
+          && dateTs(d.checkIn) >= request.time - duration.value(1, 'd')
+          && d.ref.matches('AUR-[0-9]{4}-[0-9]{5}') && int(d.ref.split('-')[2]) == counterAfter() - 1 && id == 'b' + string(counterAfter() - 1)
+          && lastLockAfter(d) == id; // the roomNights chain rule makes the last night's lock imply every earlier night's lock
+      }
+      function onlineOk(id, d) {
+        return d.customerId == uid() && d.source == 'ONLINE' && setting('allowOnline', true) == true && liveOk(id, d);
+      }
+      function walkInOk(id, d) {
+        return d.customerId == null && d.source == 'WALK_IN' && setting('allowWalkIn', true) == true && liveOk(id, d);
+      }
+      // admins create nothing but demo data (customerless, sample:true)
+      function sampleOk(d) {
+        return d.get('sample', false) == true && d.customerId == null && d.createdBy == uid()
+          && d.status in ['CONFIRMED', 'CHECKED_IN', 'COMPLETED', 'CANCELLED'];
+      }
+
+      function cancelKeys() { return ['status', 'cancelledAt', 'cancelledBy', 'cancellationReason']; }
+      function cancelDataOk(d) {
+        return d.status == 'CANCELLED' && d.cancelledBy == uid() && d.cancelledAt is string && d.cancelledAt.size() <= 40 && txtNull(d, 'cancellationReason', 500);
+      }
+      function customerCancelOk(d) {
+        return isCustomer() && resource.data.customerId == uid() && resource.data.status == 'CONFIRMED'
+          && aff().hasOnly(cancelKeys()) && cancelDataOk(d) && setting('allowCancel', true) == true;
+      }
+      // staff lifecycle: check-in, check-out, cancel (before check-in), same-type room reassignment (before check-in)
+      function staffUpdateOk(d) {
+        let s = resource.data.status;
+        return isStaff() && (
+          (s == 'CONFIRMED' && d.status == 'CHECKED_IN' && aff().hasOnly(['status', 'checkedInAt']) && d.checkedInAt is string)
+          || (s == 'CHECKED_IN' && d.status == 'COMPLETED' && aff().hasOnly(['status', 'checkedOutAt']) && d.checkedOutAt is string)
+          || (s == 'CONFIRMED' && aff().hasOnly(cancelKeys()) && cancelDataOk(d))
+          || (s == 'CONFIRMED' && aff().hasOnly(['roomId']) && typeOfRoom(d.roomId) == string(resource.data.typeId)));
+      }
+    }
+
+    // ---------------------------------------------------------------- 4f. roomNights/{roomId}_{date}: double-booking lock + public availability index (create-only)
+    match /roomNights/{nid} {
+      allow read: if true;
+      allow create: if lockShapeOk(nid, request.resource.data) && lockAllowed(request.resource.data, getAfter(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data);
+      allow update: if false;
+      allow delete: if isStaff()
+        || (isCustomer() && getAfter(/databases/$(database)/documents/bookings/$(resource.data.bookingId)).data.customerId == uid()
+            && getAfter(/databases/$(database)/documents/bookings/$(resource.data.bookingId)).data.status == 'CANCELLED');
+
+      function lockShapeOk(id, d) {
+        return d.keys().hasOnly(['roomId', 'date', 'bookingId', 'typeId']) && d.keys().hasAll(['roomId', 'date', 'bookingId', 'typeId'])
+          && (d.roomId is int || d.roomId is string) && isDate(d.date) && d.bookingId is string && d.bookingId.matches('b[0-9]+')
+          && id == string(d.roomId) + '_' + d.date;
+      }
+      // the lock must describe a night of the booking as it will exist after this batch
+      function lockMatches(d, b) {
+        return string(b.roomId) == string(d.roomId) && string(b.typeId) == string(d.typeId) && d.date >= b.checkIn && d.date < b.checkOut;
+      }
+      // chain: every night after the first needs the previous night's lock (same booking) in the same batch, so the last night's lock implies the whole stay
+      function lockChainOk(d, b) {
+        return d.date == b.checkIn
+          || getAfter(/databases/$(database)/documents/roomNights/$(string(d.roomId) + '_' + dateStr(dateTs(d.date) - duration.value(1, 'd')))).data.bookingId == d.bookingId;
+      }
+      function lockAllowed(d, b) {
+        return lockMatches(d, b) && lockChainOk(d, b) && (
+          (isCustomer() && b.customerId == uid() && b.status == 'CONFIRMED')
+          || isManager()
+          || (isAdmin() && b.get('sample', false) == true));
+      }
+    }
+
+    // ---------------------------------------------------------------- 4g. staff operations: housekeeping, maintenance
+    match /housekeeping/{id} {
+      allow read: if isStaff();
+      allow create, update: if isStaff() && request.resource.data.status in ['DIRTY', 'CLEANING', 'COMPLETED'];
+      allow delete: if isAdmin() && resource.data.get('sample', false) == true;
+    }
+    match /maintenance/{id} {
+      allow read: if isStaff();
+      allow create, update: if isStaff() && request.resource.data.status in ['OPEN', 'IN_PROGRESS', 'RESOLVED'];
+      allow delete: if isAdmin() && resource.data.get('sample', false) == true;
+    }
+
+    // ---------------------------------------------------------------- 4h. auditLogs (append-only) and messages (public contact form)
+    match /auditLogs/{id} {
+      allow read: if isStaff();
+      allow create: if verified() && (!hasProfile() || active()) && auditOk(request.resource.data);
+      allow update, delete: if false;
+
+      function customerActions() {
+        return ['LOGIN', 'LOGOUT', 'CUSTOMER_REGISTERED', 'USER_REGISTERED', 'UPDATE_PROFILE', 'BOOKING_CREATED', 'BOOKING_CANCELLED'];
+      }
+      function auditOk(d) {
+        return d.keys().hasOnly(['at', 'actorId', 'action', 'entityType', 'entityId', 'before', 'after', 'reason', 'ip', 'userAgent'])
+          && d.keys().hasAll(['at', 'actorId', 'action', 'entityType', 'entityId'])
+          && d.actorId == uid()
+          && d.at is string && d.at.size() <= 40
+          && d.action is string && d.action.size() >= 1 && d.action.size() <= 80
+          && txt(d, 'entityType', 60) && txt(d, 'entityId', 160) && txtNull(d, 'reason', 500) && txt(d, 'ip', 64) && txt(d, 'userAgent', 300)
+          && (d.get('before', null) == null || (d.before is map && d.before.size() <= 30))
+          && (d.get('after', null) == null || (d.after is map && d.after.size() <= 30))
+          && (isStaff() || d.action in customerActions());
+      }
+    }
+    match /messages/{id} {
+      allow read: if isAdmin();
+      allow create: if messageOk(request.resource.data);
+      allow update, delete: if false;
+      function messageOk(d) {
+        return d.keys().hasOnly(['name', 'email', 'subject', 'message', 'at']) && d.keys().hasAll(['name', 'email', 'subject', 'message', 'at'])
+          && d.name is string && d.name.size() >= 1 && d.name.size() <= 100
+          && isEmail(d.email)
+          && d.subject is string && d.subject.size() >= 1 && d.subject.size() <= 150
+          && d.message is string && d.message.size() >= 1 && d.message.size() <= 2000
+          && d.at is string && d.at.size() <= 40;
+      }
+    }
+
+    // ---------------------------------------------------------------- 5. everything else is denied
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Booking — AURELIA STAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="../shared/aurelia-i18n.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Booking" style="min-height:100vh;background:#F2F2F2">
+<dc-import name="SiteHeader" active="rooms" hint-size="100%,74px"></dc-import>
+<main style="max-width:1120px;margin:0 auto;padding:48px 24px 96px">
+  <ol aria-label="Booking steps" style="margin:0 0 36px;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+    <li style="display:flex;flex-direction:column;gap:8px;font:600 12px 'Outfit';letter-spacing:.12em;text-transform:uppercase;color:#174C38"><span style="height:4px;background:#174C38;border-radius:2px"></span>1 · Select Room</li>
+    <li style="display:flex;flex-direction:column;gap:8px;font:600 12px 'Outfit';letter-spacing:.12em;text-transform:uppercase;color:#174C38"><span style="height:4px;background:#174C38;border-radius:2px"></span>2 · Guest Details</li>
+    <li style="display:flex;flex-direction:column;gap:8px;font:600 12px 'Outfit';letter-spacing:.12em;text-transform:uppercase;color:{{ s3c }}"><span style="height:4px;background:{{ s3b }};border-radius:2px;transition:background .4s"></span>3 · Summary &amp; Confirm</li>
+  </ol>
+  <sc-if value="{{ invalid }}">
+    <div role="alert" style="padding:40px;border:1px solid rgba(78,22,23,.2);background:#FFFFFF;border-radius:24px;display:flex;flex-direction:column;gap:14px;align-items:flex-start">
+      <h1 style="margin:0;font:700 28px 'Comfortaa'">{{ invalidTitle }}</h1>
+      <p style="margin:0;color:#6A4744">{{ invalid }}</p>
+      <a href="Rooms.dc.html" style="height:50px;padding:0 24px;display:flex;align-items:center;background:#4E1617;color:#F1D7A5;text-decoration:none;font-weight:600;border-radius:999px">Choose another room</a>
+    </div>
+  </sc-if>
+  <sc-if value="{{ valid }}" hint-placeholder-val="{{ true }}">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:32px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <h1 data-reveal="up" style="margin:0;font:700 clamp(32px,4vw,48px) 'Comfortaa'">{{ title }}</h1>
+        <div data-reveal="up" style="display:grid;grid-template-columns:140px 1fr;gap:18px;background:#FFFFFF;border:1px solid rgba(78,22,23,.12);border-radius:22px;padding:14px;align-items:center">
+          <div style="aspect-ratio:1;border-radius:14px;overflow:hidden;background:#CBCBCB"><img src="{{ bk.img }}" alt="{{ bk.typeName }}" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <dl style="margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+            <div><dt style="font-size:12px;color:#6A4744">Room</dt><dd style="margin:3px 0 0;font-weight:600">{{ bk.typeName }}</dd></div>
+            <div><dt style="font-size:12px;color:#6A4744">Guests</dt><dd style="margin:3px 0 0;font-weight:600">{{ bk.guestsLabel }}</dd></div>
+            <div><dt style="font-size:12px;color:#6A4744">Check-in · from {{ s.checkInLabel }}</dt><dd style="margin:3px 0 0;font-weight:600">{{ bk.ciL }}</dd></div>
+            <div><dt style="font-size:12px;color:#6A4744">Check-out · by {{ s.checkOutLabel }}</dt><dd style="margin:3px 0 0;font-weight:600">{{ bk.coL }}</dd></div>
+          </dl>
+        </div>
+        <div data-reveal="up" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.12);border-radius:22px;padding:24px">
+          <h2 style="margin:0 0 16px;font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">Guest</h2>
+          <dl style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px">
+            <div><dt style="font-size:13px;color:#6A4744">Full Name</dt><dd style="margin:4px 0 0;font-weight:600">{{ me.name }}</dd></div>
+            <div><dt style="font-size:13px;color:#6A4744">Email</dt><dd style="margin:4px 0 0;font-weight:600;word-break:break-all">{{ me.email }}</dd></div>
+            <div><dt style="font-size:13px;color:#6A4744">Phone</dt><dd style="margin:4px 0 0;font-weight:600">{{ me.phone }}</dd></div>
+          </dl>
+          <p style="margin:14px 0 0;font-size:13px;color:#6A4744">Name and email come from your Google account. <a href="Profile.dc.html">Update phone in profile</a>.</p>
+        </div>
+        <sc-if value="{{ step2 }}">
+          <fieldset style="margin:0;background:#FFFFFF;border:1px solid rgba(78,22,23,.12);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:12px">
+            <legend style="padding:0 6px;font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">Payment</legend>
+            <sc-for list="{{ payOpts }}" as="p">
+              <label style="display:flex;gap:12px;align-items:center;font-size:16px;cursor:pointer;padding:12px 14px;border:1px solid {{ p.border }};border-radius:14px"><input type="radio" name="payment" value="{{ p.value }}" checked="{{ p.checked }}" onChange="{{ p.onChange }}" style="width:18px;height:18px;accent-color:#174C38">{{ p.value }}<span style="font-size:13px;color:#6A4744;margin-left:auto">{{ p.note }}</span></label>
+            </sc-for>
+          </fieldset>
+        </sc-if>
+      </div>
+      <aside data-reveal="up" style="position:sticky;top:100px;background:#174C38;color:#F1D7A5;padding:30px;border-radius:26px;display:flex;flex-direction:column;gap:16px">
+        <h2 style="margin:0;font:700 24px 'Comfortaa'">Review Your Booking</h2>
+        <div style="font-size:15px;line-height:1.7">{{ bk.typeName }} · {{ bk.roomLine }}<br>{{ bk.ciL }} → {{ bk.coL }}<br>{{ bk.guestsLabel }} · {{ bk.nightsLabel }}</div>
+        <div style="border-top:1px solid rgba(241,215,165,.35);padding-top:14px;display:flex;flex-direction:column;gap:8px;font-size:15px">
+          <div style="display:flex;justify-content:space-between"><span>{{ bk.rateLine }}</span><span>{{ bk.subtotalL }}</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Service Fee</span><span>{{ bk.feeL }}</span></div>
+        </div>
+        <div style="border-top:1px solid rgba(241,215,165,.35);padding-top:14px;display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 12px 'Outfit';letter-spacing:.14em">TOTAL</span><span style="font:700 34px 'Comfortaa'">{{ bk.totalL }}</span></div>
+        <sc-if value="{{ err }}"><div role="alert" style="padding:12px 14px;background:#F1D7A5;color:#4E1617;font-size:14px;font-weight:600;border-radius:12px">{{ err }}</div></sc-if>
+        <sc-if value="{{ step1 }}"><button onClick="{{ toSummary }}" style="height:54px;background:#F1D7A5;color:#4E1617;border:none;font-weight:600;font-size:15px;cursor:pointer;border-radius:999px" style-hover="background:#FFFFFF">Continue to Summary</button></sc-if>
+        <sc-if value="{{ step2 }}">
+          <button onClick="{{ confirm }}" disabled="{{ busy }}" style="height:54px;background:#F1D7A5;color:#4E1617;border:none;font-weight:600;font-size:15px;cursor:pointer;border-radius:999px" style-hover="background:#FFFFFF">{{ confirmLabel }}</button>
+          <button onClick="{{ back }}" style="height:40px;background:transparent;color:#F1D7A5;border:none;font-size:14px;cursor:pointer;text-decoration:underline">Back to details</button>
+        </sc-if>
+        <p style="margin:0;font-size:12px;line-height:1.5">A room of this type is assigned automatically when you confirm. Prices are locked at booking time. Free cancellation before your check-in date — <a href="Cancellation%20Policy.dc.html" style="color:#F1D7A5">cancellation policy</a>.</p>
+      </aside>
+    </div>
+  </sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { me: null, step: 1, pay: 'Pay at Hotel', err: '', busy: false };
+  componentDidMount() { const w = () => { if (!(window.AureliaStore && window.AureliaUI)) return (this._t = setTimeout(w, 30)); const me = window.AureliaUI.requireCustomer({ phone: true }); if (me) { this._ws = window.AureliaUI.watchSession('customer'); this._un = window.AureliaStore.subscribe(() => this.forceUpdate()); this.setState({ me }); } }; w(); }
+  componentWillUnmount() { clearTimeout(this._t); this._un && this._un(); this._ws && this._ws(); }
+  renderVals() {
+    if (this._hold && this._last) return { ...this._last, busy: true, err: '', confirmLabel: 'Confirming…' };   // booking in flight: freeze the view (our own booking takes the room, so don't flash "unavailable")
+    const st = this.state; const S = window.AureliaStore, U = window.AureliaUI;
+    if (!st.me) return { valid: false, invalid: '', bk: {}, me: {}, s: {}, payOpts: [], s3c: '#6A4744', s3b: '#CBCBCB' };
+    const q = U.q(); const t = S.type(q.type); const g = Number(q.g || 0); const s = U.settings();
+    let invalid = '', invalidTitle = 'Invalid booking', preview = null;
+    if (!t || !t.active) invalid = 'The selected booking information is no longer valid.';
+    else { const v = S.validateStay(q.ci, q.co, g); if (v) invalid = v; else if (g > t.capacity) invalid = t.name + ' fits up to ' + U.plural(t.capacity, 'guest') + '.'; }
+    if (!invalid) { preview = S.previewRoom(t.id, q.ci, q.co); if (!preview) { invalid = 'This room is no longer available. Please select another room.'; invalidTitle = 'Room unavailable'; } }
+    const me = S.user(st.me.id) || S.sessionUser('customer') || st.me;   // own profile only (customers cannot read other users)
+    const v = { me: { name: me.name || '', email: me.email || '', phone: me.phone || '—' }, s, err: st.err, busy: st.busy, step1: st.step === 1, step2: st.step === 2, s3c: st.step === 2 ? '#174C38' : '#6A4744', s3b: st.step === 2 ? '#174C38' : '#CBCBCB', title: st.step === 1 ? 'Guest Details' : 'Booking Summary', confirmLabel: st.busy ? 'Confirming…' : 'Confirm Booking' };
+    if (invalid) return { ...v, invalid, invalidTitle, valid: false, bk: {}, payOpts: [] };
+    const n = S.nightsBetween(q.ci, q.co);
+    const vals = {
+      ...v, valid: true, invalid: '',
+      bk: { img: U.img(U.TYPE_IMG[t.id], 400), typeName: t.name, guestsLabel: U.plural(g, 'Guest'), ciL: S.fmtDate(q.ci), coL: S.fmtDate(q.co), nightsLabel: U.plural(n, 'night'), roomLine: 'Room ' + preview + ' (assigned on confirm)', rateLine: S.rm(t.price) + ' × ' + U.plural(n, 'night'), subtotalL: S.rm(t.price * n), feeL: S.rm(s.serviceFee), totalL: S.rm(t.price * n + s.serviceFee) },
+      payOpts: [['Pay at Hotel', 'Settle at check-in'], ['Demo Payment', 'Simulated — no charge']].map(([value, note]) => ({ value, note, checked: st.pay === value, border: st.pay === value ? '#174C38' : 'rgba(78,22,23,.15)', onChange: () => this.setState({ pay: value }) })),
+      toSummary: () => { this.setState({ step: 2, err: '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+      back: () => this.setState({ step: 1, err: '' }),
+      confirm: async () => {
+        if (st.busy) return;
+        this.setState({ busy: true, err: '' });
+        const cur = S.sessionUser('customer'); if (!cur) return this.setState({ busy: false, err: 'Your session has expired. Please sign in again.' });
+        this._hold = true;
+        const r = await S.createBooking({ typeId: t.id, checkIn: q.ci, checkOut: q.co, guests: g, customerId: cur.id, source: 'ONLINE', payment: st.pay });
+        if (!r.ok) { this._hold = false; return this.setState({ busy: false, err: r.code === 'BOOKING_003' ? r.error : "We couldn't complete your booking. " + r.error }); }
+        location.replace('Booking%20Success.dc.html?ref=' + r.booking.ref);
+      }
+    };
+    this._last = vals; return vals;
+  }
+}
+</script>
+</body>
+</html>

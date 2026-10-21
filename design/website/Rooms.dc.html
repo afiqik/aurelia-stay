@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Rooms — AURELIA STAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="../shared/aurelia-i18n.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,select,textarea,button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Rooms" style="min-height:100vh;background:#F2F2F2">
+<dc-import name="SiteHeader" active="rooms" hint-size="100%,74px"></dc-import>
+<main style="max-width:1280px;margin:0 auto;padding:clamp(40px,6vw,72px) 24px 96px">
+  <div data-reveal="fade" style="font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase;color:#6A4744">{{ headLine }}</div>
+  <h1 data-reveal="up" style="margin:14px 0 36px;font:700 clamp(38px,6vw,76px) 'Comfortaa';line-height:1;letter-spacing:-.01em;max-width:900px;text-wrap:balance">Find a room that fits your stay.</h1>
+
+  <form data-reveal="up" onSubmit="{{ submit }}" noValidate="{{ true }}" aria-label="Search and filter" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.12);border-radius:22px;box-shadow:0 20px 50px rgba(78,22,23,.07);padding:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;align-items:end">
+    <label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Check-in<input type="date" name="checkIn" value="{{ f.ci }}" min="{{ todayIso }}" onChange="{{ onF.ci }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label>
+    <label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Check-out<input type="date" name="checkOut" value="{{ f.co }}" min="{{ todayIso }}" onChange="{{ onF.co }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label>
+    <label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Guests<input type="number" name="guests" min="1" max="4" value="{{ f.g }}" onChange="{{ onF.g }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label>
+    <label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Room Type<select name="roomType" value="{{ f.type }}" onChange="{{ onF.type }}" style="height:48px;padding:0 10px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"><option value="">All types</option><sc-for list="{{ typeOpts }}" as="o"><option value="{{ o.value }}">{{ o.label }}</option></sc-for></select></label>
+    <label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Max Price<select name="maxPrice" value="{{ f.max }}" onChange="{{ onF.max }}" style="height:48px;padding:0 10px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"><option value="">Any price</option><sc-for list="{{ priceOpts }}" as="o"><option value="{{ o.value }}">{{ o.label }}</option></sc-for></select></label>
+    <div style="display:flex;gap:8px">
+      <button type="submit" style="flex:1;height:48px;background:#174C38;color:#F1D7A5;border:none;font-weight:600;font-size:14px;cursor:pointer;border-radius:12px" style-hover="background:#0F3827">Search</button>
+      <button type="button" onClick="{{ clear }}" style="height:48px;padding:0 14px;background:transparent;color:#4E1617;border:1px solid rgba(78,22,23,.28);font-weight:500;font-size:14px;cursor:pointer;border-radius:12px">Clear</button>
+    </div>
+  </form>
+
+  <div aria-live="polite" style="margin:28px 0 22px;min-height:24px">
+    <sc-if value="{{ loading }}"><div role="status" style="font-size:15px;color:#6A4744">Checking availability…</div></sc-if>
+    <sc-if value="{{ summary }}"><div style="display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;font-size:15px"><strong>{{ summary }}</strong><span style="color:#6A4744">{{ countLabel }}</span></div></sc-if>
+    <sc-if value="{{ error }}"><div role="alert" style="padding:14px 16px;background:#EBD9D8;font-weight:500;border-radius:12px">{{ error }}</div></sc-if>
+  </div>
+
+  <sc-if value="{{ empty }}">
+    <div style="padding:64px 24px;text-align:center;border:1px dashed rgba(78,22,23,.3);border-radius:22px;display:flex;flex-direction:column;gap:12px;align-items:center">
+      <div style="font:700 22px 'Comfortaa'">No rooms available</div>
+      <div style="color:#6A4744">No rooms available for your selected dates. Try different dates or fewer guests.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ show }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;gap:28px">
+      <sc-for list="{{ list }}" as="t" hint-placeholder-count="4">
+        <article data-reveal="up" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:28px;overflow:hidden;opacity:{{ t.opacity }}">
+          <a href="{{ t.href }}" style="display:block;min-height:320px;overflow:hidden;background:#CBCBCB;order:{{ t.order }}"><img data-parallax="0.06" data-parallax-scale="1.14" src="{{ t.img }}" alt="{{ t.name }}" loading="lazy" style="width:100%;height:100%;min-height:320px;object-fit:cover;display:block"></a>
+          <div style="padding:clamp(24px,4vw,44px);display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap"><span style="font:500 13px 'JetBrains Mono';color:#6A4744">{{ t.num }}</span><span style="font:500 12px 'JetBrains Mono'">{{ t.stockLabel }}</span></div>
+            <h2 style="margin:0;font:700 clamp(28px,3.4vw,40px) 'Comfortaa'">{{ t.name }}</h2>
+            <p style="margin:0;font-size:16px;line-height:1.6;color:#6A4744;max-width:460px">{{ t.description }}</p>
+            <ul style="margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ t.features }}" as="a"><li style="padding:7px 12px;border:1px solid rgba(78,22,23,.18);border-radius:999px;font-size:13px">{{ a }}</li></sc-for>
+            </ul>
+            <div style="margin-top:auto;padding-top:18px;border-top:1px solid rgba(78,22,23,.1);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
+              <div style="font-size:15px"><strong style="font:700 30px 'Comfortaa'">{{ t.priceLabel }}</strong> / night</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-if value="{{ t.canSelect }}"><a href="{{ t.bookHref }}" style="height:48px;padding:0 22px;display:flex;align-items:center;background:#4E1617;color:#F1D7A5;text-decoration:none;font-weight:600;font-size:14px;border-radius:999px" style-hover="background:#174C38;color:#F1D7A5">Select Room</a></sc-if>
+                <sc-if value="{{ t.disabledReason }}"><span aria-disabled="true" style="height:48px;padding:0 18px;display:flex;align-items:center;background:#E4E4E4;color:#5A5A5A;font-weight:600;font-size:13px;border-radius:999px">{{ t.disabledReason }}</span></sc-if>
+                <a href="{{ t.href }}" style="height:48px;padding:0 22px;display:flex;align-items:center;border:1px solid #4E1617;color:#4E1617;text-decoration:none;font-weight:600;font-size:14px;border-radius:999px" style-hover="background:#4E1617;color:#F1D7A5">View Details</a>
+              </div>
+            </div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </sc-if>
+</main>
+<dc-import name="SiteFooter" hint-size="100%,520px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { ready: false, f: { ci: '', co: '', g: '2', type: '', max: '' }, fErr: '', loading: false };
+  componentDidMount() {
+    const w = () => {
+      if (!(window.AureliaStore && window.AureliaUI)) return (this._t = setTimeout(w, 30));
+      const S = window.AureliaStore, q = window.AureliaUI.q(); const T = S.today();
+      this._un = S.subscribe(() => this.forceUpdate());
+      const searched = !!(q.ci || q.co);
+      this.setState({ ready: true, loading: searched, f: { ci: q.ci || S.addDays(T, 1), co: q.co || S.addDays(T, 3), g: q.g || '2', type: q.type || '', max: q.max || '' } });
+      if (searched) this._lt = setTimeout(() => this.setState({ loading: false }), 450);
+    }; w();
+  }
+  componentWillUnmount() { this._un && this._un(); clearTimeout(this._t); clearTimeout(this._lt); }
+  setF(k) { return e => { const v = e.target.value; this.setState(s => ({ f: { ...s.f, [k]: v }, fErr: '' })); }; }
+  renderVals() {
+    const st = this.state; const S = window.AureliaStore, U = window.AureliaUI;
+    const base = { f: st.f, todayIso: S ? S.today() : '', onF: { ci: this.setF('ci'), co: this.setF('co'), g: this.setF('g'), type: this.setF('type'), max: this.setF('max') }, loading: st.loading };
+    if (!st.ready) return { ...base, list: [], show: false, headLine: 'Rooms · 4 types · 20 rooms', typeOpts: [], priceOpts: [] };
+    // live catalogue (the admin can change prices / hide types): header, type list and price steps all come from the store
+    const act = S.db.roomTypes.filter(t => t.active); const steps = [...new Set(act.map(t => t.price))].sort((a, b) => a - b).slice(0, -1);
+    base.headLine = 'Rooms · ' + act.length + ' types · ' + S.db.rooms.length + ' rooms'; base.typeOpts = act.map(t => ({ value: String(t.id), label: t.name })); base.priceOpts = steps.map(p => ({ value: String(p), label: 'Up to ' + S.rm(p) }));
+    const q0 = U.q(); const searched = !!(q0.ci || q0.co); const q = { ...q0, ci: q0.ci || st.f.ci, co: q0.co || st.f.co, g: q0.g || st.f.g };
+    let err = '', avail = null;
+    err = S.validateStay(q.ci, q.co, q.g || '1'); if (!err) avail = S.availability(q.ci, q.co, Number(q.g || 1)); if (!searched) err = '';
+    const types = S.db.roomTypes.filter(t => t.active).map(U.typeVM).filter(t => (!q.type || String(t.id) === q.type) && (!q.max || t.price <= Number(q.max)));
+    const list = types.map((t, i) => {
+      const extra = { num: '0' + (i + 1) + ' / 0' + types.length, order: i % 2 ? 2 : 0 };
+      const a = avail && avail.find(x => x.typeId === t.id);
+      if (!a) return { ...t, ...extra, opacity: 1, canSelect: false, disabledReason: '' };
+      const disabledReason = !a.fits ? 'Fits up to ' + t.guestsLabel.toLowerCase() : a.available === 0 ? 'Fully booked' : '';
+      return { ...t, ...extra, opacity: disabledReason ? .6 : 1, canSelect: !disabledReason, disabledReason, bookHref: 'Booking.dc.html?type=' + t.id + '&ci=' + q.ci + '&co=' + q.co + '&g=' + Number(q.g), stockLabel: a.total + ' rooms · ' + a.available + ' available' };
+    });
+    const availableTypes = list.filter(t => t.canSelect).length;
+    return {
+      ...base, list, error: st.fErr || err,
+      summary: !st.loading && avail ? (searched ? '' : 'Showing availability for ') + S.fmtShort(q.ci) + ' → ' + S.fmtShort(q.co) + ' · ' + U.plural(Number(q.g), 'guest') : '',
+      countLabel: avail ? U.plural(availableTypes, 'room type') + ' available · ' + U.plural(S.nightsBetween(q.ci, q.co), 'night') : '',
+      empty: !st.loading && (!list.length || (avail && availableTypes === 0 && !err)),
+      show: !st.loading && !err && list.length > 0,
+      submit: e => {
+        e.preventDefault(); const { ci, co, g, type, max } = st.f; const qs = [];
+        const v = S.validateStay(ci, co, g); if (v) return this.setState({ fErr: v });
+        qs.push('ci=' + ci, 'co=' + co, 'g=' + Number(g)); if (type) qs.push('type=' + type); if (max) qs.push('max=' + max);
+        location.href = 'Rooms.dc.html?' + qs.join('&');
+      },
+      clear: () => { location.href = 'Rooms.dc.html'; }
+    };
+  }
+}
+</script>
+</body>
+</html>

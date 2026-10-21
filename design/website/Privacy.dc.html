@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Privacy Policy — AURELIA STAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="../shared/aurelia-i18n.js"></script>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+</style>
+</helmet>
+<div data-screen-label="Privacy Policy" style="min-height:100vh;background:#F2F2F2">
+<dc-import name="SiteHeader" active="" hint-size="100%,74px"></dc-import>
+<main>
+  <section style="max-width:1280px;margin:0 auto;padding:clamp(40px,6vw,72px) 24px 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:32px;align-items:end">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div data-reveal="fade" style="font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase;color:#6A4744">Policies · Privacy</div>
+      <h1 data-reveal="up" style="margin:0;font:700 clamp(40px,6vw,76px) 'Comfortaa';line-height:1;text-wrap:balance">Privacy Policy</h1>
+      <p data-reveal="up" data-reveal-delay="100" style="margin:0;font-size:clamp(17px,1.6vw,20px);line-height:1.55;color:#6A4744;max-width:520px">What personal data we collect, why we need it, and your rights under the Personal Data Protection Act 2010 (PDPA).</p>
+      <div data-reveal="up" data-reveal-delay="160" style="font:500 12px 'JetBrains Mono';color:#6A4744">LAST UPDATED 30 SEP 2026</div>
+    </div>
+    <div data-reveal="clip" style="height:clamp(200px,30vw,300px);border-radius:28px;overflow:hidden;background:#CBCBCB"><img data-parallax="0.08" data-parallax-scale="1.15" src="https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=1200&q=70&auto=format&fit=crop" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+  </section>
+  <nav aria-label="Policies" style="max-width:1280px;margin:0 auto;padding:0 24px 32px;display:flex;gap:8px;overflow-x:auto">
+      <a href="Terms.dc.html" style="height:42px;padding:0 18px;display:flex;align-items:center;border:1px solid #4E1617;border-radius:999px;font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;background:transparent;color:#4E1617" style-hover="background:#E4E4E4;color:#4E1617">Terms of Stay</a>
+      <a href="Privacy.dc.html" aria-current="page" style="height:42px;padding:0 18px;display:flex;align-items:center;border:1px solid #4E1617;border-radius:999px;font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;background:#4E1617;color:#F1D7A5">Privacy Policy</a>
+      <a href="Cancellation%20Policy.dc.html" style="height:42px;padding:0 18px;display:flex;align-items:center;border:1px solid #4E1617;border-radius:999px;font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;background:transparent;color:#4E1617" style-hover="background:#E4E4E4;color:#4E1617">Cancellation Policy</a>
+  </nav>
+  
+  <div style="max-width:1280px;margin:0 auto;padding:16px 24px 96px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+    <aside aria-label="On this page" style="flex:1 1 220px;max-width:280px;position:sticky;top:100px;display:flex;flex-direction:column">
+      <div style="font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744;margin-bottom:8px">On this page</div>
+        <a href="#s1" style="display:flex;gap:10px;padding:8px 0;color:#4E1617;text-decoration:none;font-size:14px;border-bottom:1px solid rgba(78,22,23,.08)" style-hover="color:#174C38"><span style="font:500 12px 'JetBrains Mono';color:#6A4744;padding-top:2px">01</span><span>Data we collect</span></a>
+        <a href="#s2" style="display:flex;gap:10px;padding:8px 0;color:#4E1617;text-decoration:none;font-size:14px;border-bottom:1px solid rgba(78,22,23,.08)" style-hover="color:#174C38"><span style="font:500 12px 'JetBrains Mono';color:#6A4744;padding-top:2px">02</span><span>How we use it</span></a>
+        <a href="#s3" style="display:flex;gap:10px;padding:8px 0;color:#4E1617;text-decoration:none;font-size:14px;border-bottom:1px solid rgba(78,22,23,.08)" style-hover="color:#174C38"><span style="font:500 12px 'JetBrains Mono';color:#6A4744;padding-top:2px">03</span><span>Who can see it</span></a>
+        <a href="#s4" style="display:flex;gap:10px;padding:8px 0;color:#4E1617;text-decoration:none;font-size:14px;border-bottom:1px solid rgba(78,22,23,.08)" style-hover="color:#174C38"><span style="font:500 12px 'JetBrains Mono';color:#6A4744;padding-top:2px">04</span><span>How long we keep it</span></a>
+        <a href="#s5" style="display:flex;gap:10px;padding:8px 0;color:#4E1617;text-decoration:none;font-size:14px;border-bottom:1px solid rgba(78,22,23,.08)" style-hover="color:#174C38"><span style="font:500 12px 'JetBrains Mono';color:#6A4744;padding-top:2px">05</span><span>How we protect it</span></a>
+        <a href="#s6" style="display:flex;gap:10px;padding:8px 0;color:#4E1617;text-decoration:none;font-size:14px;border-bottom:1px solid rgba(78,22,23,.08)" style-hover="color:#174C38"><span style="font:500 12px 'JetBrains Mono';color:#6A4744;padding-top:2px">06</span><span>Your rights</span></a>
+        <a href="#s7" style="display:flex;gap:10px;padding:8px 0;color:#4E1617;text-decoration:none;font-size:14px;border-bottom:1px solid rgba(78,22,23,.08)" style-hover="color:#174C38"><span style="font:500 12px 'JetBrains Mono';color:#6A4744;padding-top:2px">07</span><span>Cookies &amp; storage</span></a>
+    </aside>
+    <article style="flex:999 1 520px;min-width:0">
+      <section id="s1" data-reveal="up" style="scroll-margin-top:100px;padding:32px 0;border-top:1px solid rgba(78,22,23,.14);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px 32px">
+        <div style="display:flex;gap:12px;align-items:baseline"><span style="font:500 13px 'JetBrains Mono';color:#6A4744">01</span><h2 style="margin:0;font:700 22px 'Comfortaa';line-height:1.25">Data we collect</h2></div>
+        <div style="grid-column:span 2;display:flex;flex-direction:column;gap:14px;min-width:0"><ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;max-width:68ch"><li style="font-size:17px;line-height:1.7;color:#4E1617"><strong>From your Google account:</strong> your name, email address and profile photo.</li><li style="font-size:17px;line-height:1.7;color:#4E1617"><strong>From you:</strong> your phone number.</li><li style="font-size:17px;line-height:1.7;color:#4E1617"><strong>From your bookings:</strong> dates, room type, number of guests and booking history.</li><li style="font-size:17px;line-height:1.7;color:#4E1617"><strong>Walk-in guests:</strong> name, phone number and, optionally, email.</li><li style="font-size:17px;line-height:1.7;color:#4E1617"><strong>From the contact form:</strong> your name, email address and message.</li><li style="font-size:17px;line-height:1.7;color:#4E1617"><strong>Security records:</strong> sign-in times and key account actions.</li></ul></div>
+      </section>
+      <section id="s2" data-reveal="up" style="scroll-margin-top:100px;padding:32px 0;border-top:1px solid rgba(78,22,23,.14);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px 32px">
+        <div style="display:flex;gap:12px;align-items:baseline"><span style="font:500 13px 'JetBrains Mono';color:#6A4744">02</span><h2 style="margin:0;font:700 22px 'Comfortaa';line-height:1.25">How we use it</h2></div>
+        <div style="grid-column:span 2;display:flex;flex-direction:column;gap:14px;min-width:0"><ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;max-width:68ch"><li style="font-size:17px;line-height:1.7;color:#4E1617">To create and manage your bookings.</li><li style="font-size:17px;line-height:1.7;color:#4E1617">To contact you about your stay.</li><li style="font-size:17px;line-height:1.7;color:#4E1617">To verify your identity at check-in.</li><li style="font-size:17px;line-height:1.7;color:#4E1617">To keep the system secure and keep a record of changes.</li><li style="font-size:17px;line-height:1.7;color:#4E1617">To meet legal and accounting requirements.</li></ul></div>
+      </section>
+      <section id="s3" data-reveal="up" style="scroll-margin-top:100px;padding:32px 0;border-top:1px solid rgba(78,22,23,.14);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px 32px">
+        <div style="display:flex;gap:12px;align-items:baseline"><span style="font:500 13px 'JetBrains Mono';color:#6A4744">03</span><h2 style="margin:0;font:700 22px 'Comfortaa';line-height:1.25">Who can see it</h2></div>
+        <div style="grid-column:span 2;display:flex;flex-direction:column;gap:14px;min-width:0"><p style="margin:0;font-size:17px;line-height:1.75;color:#4E1617;max-width:68ch;text-wrap:pretty">Your data is only visible to hotel staff who need it to look after your stay. We do not sell your data. We share it only with Google (for sign-in and for the secure Firebase cloud service that stores it) and with authorities when required by Malaysian law.</p></div>
+      </section>
+      <section id="s4" data-reveal="up" style="scroll-margin-top:100px;padding:32px 0;border-top:1px solid rgba(78,22,23,.14);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px 32px">
+        <div style="display:flex;gap:12px;align-items:baseline"><span style="font:500 13px 'JetBrains Mono';color:#6A4744">04</span><h2 style="margin:0;font:700 22px 'Comfortaa';line-height:1.25">How long we keep it</h2></div>
+        <div style="grid-column:span 2;display:flex;flex-direction:column;gap:14px;min-width:0"><p style="margin:0;font-size:17px;line-height:1.75;color:#4E1617;max-width:68ch;text-wrap:pretty">Booking records are kept for as long as needed for accounting and legal purposes. You can ask us to close your account at any time — past booking records may still be kept where the law requires it.</p></div>
+      </section>
+      <section id="s5" data-reveal="up" style="scroll-margin-top:100px;padding:32px 0;border-top:1px solid rgba(78,22,23,.14);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px 32px">
+        <div style="display:flex;gap:12px;align-items:baseline"><span style="font:500 13px 'JetBrains Mono';color:#6A4744">05</span><h2 style="margin:0;font:700 22px 'Comfortaa';line-height:1.25">How we protect it</h2></div>
+        <div style="grid-column:span 2;display:flex;flex-direction:column;gap:14px;min-width:0"><ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;max-width:68ch"><li style="font-size:17px;line-height:1.7;color:#4E1617">Guests sign in with Google — we never store your password.</li><li style="font-size:17px;line-height:1.7;color:#4E1617">Staff also sign in with Google, and their access is controlled by an administrator.</li><li style="font-size:17px;line-height:1.7;color:#4E1617">Your data is stored in Google Firebase (Cloud Firestore and Realtime Database) and protected by access rules, so a guest can only see their own bookings.</li><li style="font-size:17px;line-height:1.7;color:#4E1617">Every sensitive change is recorded in an audit log.</li></ul></div>
+      </section>
+      <section id="s6" data-reveal="up" style="scroll-margin-top:100px;padding:32px 0;border-top:1px solid rgba(78,22,23,.14);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px 32px">
+        <div style="display:flex;gap:12px;align-items:baseline"><span style="font:500 13px 'JetBrains Mono';color:#6A4744">06</span><h2 style="margin:0;font:700 22px 'Comfortaa';line-height:1.25">Your rights</h2></div>
+        <div style="grid-column:span 2;display:flex;flex-direction:column;gap:14px;min-width:0"><p style="margin:0;font-size:17px;line-height:1.75;color:#4E1617;max-width:68ch;text-wrap:pretty">Under the PDPA you can ask to see the personal data we hold about you, correct it, or withdraw your consent. Email <a href="{{ mail }}">{{ s.email }}</a> and we will reply within 21 days.</p></div>
+      </section>
+      <section id="s7" data-reveal="up" style="scroll-margin-top:100px;padding:32px 0;border-top:1px solid rgba(78,22,23,.14);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px 32px">
+        <div style="display:flex;gap:12px;align-items:baseline"><span style="font:500 13px 'JetBrains Mono';color:#6A4744">07</span><h2 style="margin:0;font:700 22px 'Comfortaa';line-height:1.25">Cookies &amp; storage</h2></div>
+        <div style="grid-column:span 2;display:flex;flex-direction:column;gap:14px;min-width:0"><p style="margin:0;font-size:17px;line-height:1.75;color:#4E1617;max-width:68ch;text-wrap:pretty">We only use the browser storage needed to keep you signed in and to remember your language choice. We do not use advertising trackers.</p></div>
+      </section>
+      <div data-reveal="up" style="margin-top:16px;padding:28px;background:#FFFFFF;border:1px solid rgba(78,22,23,.12);border-radius:24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+        <div><div style="font:700 20px 'Comfortaa'">Still have a question?</div><div style="font-size:15px;color:#6A4744;margin-top:4px">Our front desk in George Town is here to help, day and night.</div></div>
+        <a href="Contact.dc.html" style="height:50px;padding:0 24px;display:flex;align-items:center;background:#4E1617;color:#F1D7A5;text-decoration:none;font-weight:600;border-radius:999px" style-hover="background:#174C38;color:#F1D7A5">Contact Us</a>
+      </div>
+    </article>
+  </div>
+</main>
+<dc-import name="SiteFooter" hint-size="100%,520px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() { const w = () => window.AureliaUI && window.AureliaStore ? (this._un = window.AureliaStore.subscribe(() => this.forceUpdate()), this.forceUpdate()) : (this._t = setTimeout(w, 30)); w(); }
+  componentWillUnmount() { clearTimeout(this._t); this._un && this._un(); }
+  renderVals() {
+    const s = window.AureliaUI && window.AureliaStore ? window.AureliaUI.settings() : { serviceFee: 10, checkInLabel: '2:00 PM', checkOutLabel: '12:00 PM', phone: '+60 4-261 8890', email: 'hello@aureliastay.local' };   // live settings: the admin can change them
+    return { s, mail: 'mailto:' + s.email };
+  }
+}
+</script>
+</body>
+</html>

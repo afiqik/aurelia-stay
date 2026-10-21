@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Admin Dashboard — AURELIA STAY Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="admin-app.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,select,textarea,button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Admin Dashboard" style="min-height:100vh;background:#F2F2F2;display:flex;flex-wrap:wrap;align-items:stretch">
+<dc-import name="AdminSidebar" active="dashboard" hint-size="260px,100vh"></dc-import>
+<div style="flex:1 1 0;min-width:min(100%,320px);display:flex;flex-direction:column">
+<header style="height:64px;border-bottom:1px solid rgba(78,22,23,.10);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 clamp(16px,3vw,40px)"><span style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">{{ todayLabel }}</span><a href="Notifications.dc.html" style="display:flex;align-items:center;min-height:44px;gap:8px;color:#4E1617;text-decoration:none;font-size:14px;font-weight:500">Notifications<sc-if value="{{ unread }}"><span style="min-width:22px;height:22px;padding:0 7px;background:#4E1617;color:#F1D7A5;font:600 11px 'Outfit';display:flex;align-items:center;justify-content:center;border-radius:11px">{{ unread }}</span></sc-if></a></header>
+<main style="flex:1;padding:clamp(20px,3vw,40px) clamp(16px,3vw,40px) 64px;max-width:1320px;width:100%">
+<sc-if value="{{ flash.msg }}"><div role="status" style="margin-bottom:20px;padding:14px 18px;background:{{ flash.bg }};color:{{ flash.fg }};font-weight:600;font-size:14px;border-radius:14px;display:flex;justify-content:space-between;gap:12px"><span>{{ flash.msg }}</span><button onClick="{{ clearFlash }}" aria-label="Dismiss" style="background:transparent;border:none;color:inherit;cursor:pointer;font-size:16px">×</button></div></sc-if>
+<sc-if value="{{ loading }}"><div role="status" style="padding:60px 0;color:#6A4744">Loading…</div></sc-if>
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<section style="display:flex;flex-direction:column;gap:28px">
+<div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap"><h1 data-reveal="up" style="margin:0;font:700 clamp(30px,4vw,46px) 'Comfortaa';line-height:1.05">Admin Dashboard</h1><div style="display:flex;gap:8px;flex-wrap:wrap"><a href="Create%20Manager.dc.html" style="height:44px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;background:#4E1617;color:#F1D7A5;border:none;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;text-decoration:none;white-space:nowrap;height:40px;font-size:13px">Add Manager</a><a href="Rooms%20-%20Pricing.dc.html" style="height:44px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#4E1617;border:1px solid #4E1617;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;text-decoration:none;white-space:nowrap;height:40px;font-size:13px">Manage Pricing</a><a href="Bookings.dc.html" style="height:44px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#4E1617;border:1px solid #4E1617;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;text-decoration:none;white-space:nowrap;height:40px;font-size:13px">View Bookings</a><a href="Users.dc.html" style="height:44px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#4E1617;border:1px solid #4E1617;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;text-decoration:none;white-space:nowrap;height:40px;font-size:13px">View Users</a></div></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px;align-items:stretch">
+<div data-reveal="up" style="position:relative;overflow:hidden;background:#4E1617;color:#F1D7A5;padding:28px;border-radius:22px;display:flex;flex-direction:column;gap:8px;justify-content:flex-end;min-height:220px"><img src="https://images.unsplash.com/photo-1470058869958-2a77ade41c02?w=900&q=60&auto=format&fit=crop" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.22"><span style="position:relative;font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Revenue · this month</span><span style="position:relative;font:700 56px 'Comfortaa'"><span data-count="{{ monthRevenue }}" data-count-prefix="RM">RM{{ monthRevenue }}</span></span><span style="position:relative;font-size:14px">Completed + in-house stays at booked prices</span></div>
+<div data-reveal="up" data-reveal-delay="100" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:24px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h2 style="margin:0;font:700 19px 'Comfortaa'">System Health</h2><a href="System%20Health.dc.html" style="font-size:13px;font-weight:600;display:inline-flex;align-items:center;min-height:44px;">Details</a></div><sc-for list="{{ health }}" as="h" hint-placeholder-count="5"><div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(78,22,23,.08);font-size:14px"><span>{{ h.name }}</span><span style="display:flex;align-items:center;gap:8px;color:{{ h.fg }};font-weight:600"><span style="width:8px;height:8px;border-radius:50%;background:{{ h.dot }}"></span>{{ h.label }}</span></div></sc-for></div></div>
+<sc-for list="{{ groups }}" as="g" hint-placeholder-count="3"><div><h2 style="margin:0 0 12px;font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">{{ g.title }}</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px"><sc-for list="{{ g.stats }}" as="s"><div data-reveal="up" data-reveal-delay="{{ s.delay }}" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:18px 20px;display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;color:#6A4744">{{ s.k }}</span><span style="font:700 34px 'Comfortaa'"><span data-count="{{ s.n }}">{{ s.n }}</span></span></div></sc-for></div></div></sc-for>
+<div data-reveal="up" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:24px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0;font:700 19px 'Comfortaa'">Recent System Activity</h2><a href="Audit%20Logs.dc.html" style="font-size:13px;font-weight:600;display:inline-flex;align-items:center;min-height:44px;">Audit Logs</a></div><sc-for list="{{ recent }}" as="a" hint-placeholder-count="6"><div style="display:flex;flex-wrap:wrap;gap:4px 14px;padding:10px 0;border-bottom:1px solid rgba(78,22,23,.08);font-size:14px;align-items:baseline"><span style="font:500 12px 'JetBrains Mono';color:#6A4744">{{ a.time }}</span><span style="font:500 12px 'JetBrains Mono'">{{ a.action }}</span><span>{{ a.actor }} · {{ a.entity }}</span></div></sc-for></div></section>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {};
+  componentDidMount() { const w = () => { if (!window.AureliaAdmin) return (this._w = setTimeout(w, 30)); this.setState(window.AureliaAdmin.state(), () => window.AureliaAdmin.mount(this)); }; w(); }
+  componentWillUnmount() { clearTimeout(this._w); window.AureliaAdmin && window.AureliaAdmin.unmount(this); }
+  renderVals() { if (!(window.AureliaAdmin && this.state.cm)) return { loading: true, flash: {}, me: {} }; const v = window.AureliaAdmin.vals(this, 'dashboard'); return v; }
+}
+</script>
+</body>
+</html>

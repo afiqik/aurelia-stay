@@ -1,0 +1,48 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "hosting": {
+    "public": "design",
+    "ignore": [
+      "firebase.json",
+      "**/node_modules/**",
+      "uploads/**",
+      ".git/**",
+      ".firebase/**",
+      ".firebaserc",
+      "*.log"
+    ],
+    "cleanUrls": false,
+    "redirects": [
+      {
+        "source": "/",
+        "destination": "/Demo Portal.dc.html",
+        "type": 302
+      }
+    ]
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8180
+    },
+    "database": {
+      "port": 9000
+    },
+    "hosting": {
+      "port": 5000
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4001
+    },
+    "singleProjectMode": true
+  }
+}

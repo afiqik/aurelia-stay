@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<footer style="background:#4E1617;color:#F1D7A5;overflow:hidden">
+  <div style="border-bottom:1px solid rgba(241,215,165,.2);overflow:hidden;padding:26px 0">
+    <div data-marquee="36" style="display:flex;gap:48px;white-space:nowrap;width:max-content;font:700 clamp(40px,7vw,96px) 'Comfortaa';line-height:1">
+      <span>Simple Stay.</span><span style="color:transparent;-webkit-text-stroke:1.5px #F1D7A5">Better Value.</span><span>Simple Stay.</span><span style="color:transparent;-webkit-text-stroke:1.5px #F1D7A5">Better Value.</span><span>Simple Stay.</span><span style="color:transparent;-webkit-text-stroke:1.5px #F1D7A5">Better Value.</span><span>Simple Stay.</span><span style="color:transparent;-webkit-text-stroke:1.5px #F1D7A5">Better Value.</span>
+    </div>
+  </div>
+  <div style="max-width:1280px;margin:0 auto;padding:64px 24px 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:36px">
+    <div data-reveal="up" style="display:flex;flex-direction:column;gap:12px"><div style="font:700 22px 'Comfortaa';letter-spacing:.06em">AURELIA STAY</div><div style="font-size:15px;line-height:1.6">Simple Stay. Better Value.<br>{{ rate }}</div></div>
+    <div data-reveal="up" data-reveal-delay="80" style="display:flex;flex-direction:column;gap:2px;font-size:15px"><div style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">Explore</div><a href="Home.dc.html" style="color:#F1D7A5;text-decoration:none;padding:6px 0" style-hover="color:#FFFFFF">Home</a><a href="Rooms.dc.html" style="color:#F1D7A5;text-decoration:none;padding:6px 0" style-hover="color:#FFFFFF">Rooms</a><a href="Facilities.dc.html" style="color:#F1D7A5;text-decoration:none;padding:6px 0" style-hover="color:#FFFFFF">Facilities</a><a href="Gallery.dc.html" style="color:#F1D7A5;text-decoration:none;padding:6px 0" style-hover="color:#FFFFFF">Gallery</a><a href="About.dc.html" style="color:#F1D7A5;text-decoration:none;padding:6px 0" style-hover="color:#FFFFFF">About</a></div>
+    <div data-reveal="up" data-reveal-delay="160" style="display:flex;flex-direction:column;gap:2px;font-size:15px"><div style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">Support</div><a href="Contact.dc.html" style="color:#F1D7A5;text-decoration:none;padding:6px 0" style-hover="color:#FFFFFF">Contact</a><a href="Contact.dc.html" style="color:#F1D7A5;text-decoration:none;padding:6px 0" style-hover="color:#FFFFFF">Booking Help</a><a href="Terms.dc.html" style="color:#F1D7A5;text-decoration:none;padding:6px 0" style-hover="color:#FFFFFF">Terms of Stay</a><a href="Privacy.dc.html" style="color:#F1D7A5;text-decoration:none;padding:6px 0" style-hover="color:#FFFFFF">Privacy Policy</a><a href="Cancellation%20Policy.dc.html" style="color:#F1D7A5;text-decoration:none;padding:6px 0" style-hover="color:#FFFFFF">Cancellation Policy</a></div>
+    <div data-reveal="up" data-reveal-delay="240" style="display:flex;flex-direction:column;gap:10px;font-size:15px"><div style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">Contact</div><span>{{ phone }}</span><span>{{ email }}</span><span>{{ address }}</span></div>
+  </div>
+  <div style="max-width:1280px;margin:0 auto;padding:20px 24px 28px;border-top:1px solid rgba(241,215,165,.2);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px">
+    <span style="display:flex;gap:18px;flex-wrap:wrap"><span>© 2026 AURELIA STAY · George Town, Penang</span><a href="Terms.dc.html" style="color:#F1D7A5">Terms</a><a href="Privacy.dc.html" style="color:#F1D7A5">Privacy</a></span>
+    <span style="display:flex;gap:18px"><a href="../Demo%20Portal.dc.html" style="color:#F1D7A5">All portals</a><a href="../manager/Login.dc.html" style="color:#F1D7A5">Manager portal</a><a href="../admin/Login.dc.html" style="color:#F1D7A5">Admin portal</a></span>
+  </div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;520px&quot;}}">
+class Component extends DCLogic {
+  componentDidMount() { const w = () => window.AureliaStore ? (this._un = window.AureliaStore.subscribe(() => this.forceUpdate()), this.forceUpdate()) : (this._t = setTimeout(w, 30)); w(); }
+  componentWillUnmount() { clearTimeout(this._t); this._un && this._un(); }
+  renderVals() {
+    const S = window.AureliaStore;
+    const s = S ? S.db.settings : { phone: '+60 4-261 8890', email: 'hello@aureliastay.local', address: '38 Lebuh Chulia, 10200 George Town, Pulau Pinang' };
+    const pr = S ? S.db.roomTypes.filter(t => t.active).map(t => t.price) : [];   // live catalogue: the admin can change prices
+    const lo = Math.min(...pr), hi = Math.max(...pr);
+    return { phone: s.phone, email: s.email, address: s.address, rate: !S ? '20 rooms · RM80–RM95 per night' : pr.length ? (S.db.rooms.length + ' rooms · ' + S.rm(lo) + (hi !== lo ? '–' + S.rm(hi) : '') + ' per night') : S.db.rooms.length + ' rooms' };
+  }
+}
+</script>
+</body>
+</html>

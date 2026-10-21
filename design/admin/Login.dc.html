@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Admin Sign In — AURELIA STAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Admin Login" style="min-height:100vh;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));background:#F2F2F2">
+  <div style="position:relative;min-height:320px;overflow:hidden;background:#4E1617">
+    <img data-reveal="fade" data-kenburns="1" src="https://images.unsplash.com/photo-1470058869958-2a77ade41c02?w=1400&q=70&auto=format&fit=crop" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55">
+    <div style="position:relative;height:100%;padding:clamp(28px,5vw,64px);display:flex;flex-direction:column;justify-content:space-between;gap:40px;color:#F1D7A5">
+      <a href="../website/Home.dc.html" style="font:700 20px 'Comfortaa';letter-spacing:.06em;color:#F1D7A5;text-decoration:none">AURELIA STAY</a>
+      <div data-reveal="up"><div style="font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px">Administration</div><div style="font:700 clamp(38px,5vw,64px) 'Comfortaa';line-height:1.02">Control the<br>system.</div></div>
+      <div style="font:500 12px 'JetBrains Mono'">Users · Pricing · Settings · Reports · Audit</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;padding:48px 24px">
+    <div data-reveal="up" aria-label="Admin sign in" style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:18px">
+      <h1 style="margin:0;font:700 34px 'Comfortaa'">Sign In</h1>
+      <p style="margin:0;font-size:15px;color:#6A4744">Administrator access. Default administrator: admin@aureliastay.local</p>
+      <sc-if value="{{ info }}"><div role="status" style="padding:12px 14px;background:#F3E6C8;font-size:14px;font-weight:500;border-radius:12px">{{ info }}</div></sc-if>
+      <sc-if value="{{ err }}"><div role="alert" style="padding:12px 14px;background:#EBD9D8;font-size:14px;font-weight:500;border-radius:12px">{{ err }}</div></sc-if>
+      <button type="button" onClick="{{ google }}" aria-busy="{{ busy }}" style="height:54px;display:flex;align-items:center;justify-content:center;gap:12px;background:#4E1617;color:#F1D7A5;border:none;font-weight:600;font-size:15px;cursor:pointer;border-radius:999px;opacity:{{ btnOpacity }}" style-hover="background:#3A0F10"><span style="width:24px;height:24px;border-radius:50%;border:2px solid #F1D7A5;display:flex;align-items:center;justify-content:center;font:700 12px 'Outfit'">G</span>{{ btnLabel }}</button>
+      <a href="../Demo%20Portal.dc.html" style="margin-top:8px;display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:600;color:#6A4744;text-decoration:none" style-hover="color:#4E1617">← Back to all portals</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { err: '', busy: false };
+  // only same-folder admin pages are valid return targets (never an arbitrary URL)
+  target() { const n = window.AureliaUI.q().next || ''; return /^[A-Za-z0-9%._-]+\.dc\.html(\?[^#]*)?$/.test(n) ? n : 'Dashboard.dc.html'; }
+  componentDidMount() { const w = () => { if (!(window.AureliaStore && window.AureliaUI)) return (this._t = setTimeout(w, 30)); const u = window.AureliaStore.sessionUser('admin'); if (u && !u.expired) location.replace(this.target()); else this.forceUpdate(); }; w(); }
+  componentWillUnmount() { clearTimeout(this._t); }
+  async signIn() {
+    if (this.state.busy) return;
+    const S = window.AureliaStore; if (!S) return this.setState({ err: 'The system is still starting. Please try again in a moment.' });
+    this.setState({ busy: true, err: '' });
+    const r = await S.signInWithGoogle('admin');
+    if (!r.ok) return this.setState({ busy: false, err: r.error });
+    location.replace(this.target());
+  }
+  renderVals() {
+    const st = this.state; const q = window.AureliaUI ? window.AureliaUI.q() : {};
+    return {
+      err: st.err, busy: st.busy ? 'true' : 'false', btnLabel: st.busy ? 'Opening Google…' : 'Continue with Google', btnOpacity: st.busy ? '.7' : '1',
+      info: q.expired ? 'Your session has expired. Please sign in again.' : q.out ? 'You have been signed out.' : '',
+      google: () => this.signIn()
+    };
+  }
+}
+</script>
+</body>
+</html>

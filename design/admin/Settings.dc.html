@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>System Settings — AURELIA STAY Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="admin-app.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,select,textarea,button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="System Settings" style="min-height:100vh;background:#F2F2F2;display:flex;flex-wrap:wrap;align-items:stretch">
+<dc-import name="AdminSidebar" active="settings" hint-size="260px,100vh"></dc-import>
+<div style="flex:1 1 0;min-width:min(100%,320px);display:flex;flex-direction:column">
+<header style="height:64px;border-bottom:1px solid rgba(78,22,23,.10);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 clamp(16px,3vw,40px)"><span style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">{{ todayLabel }}</span><a href="Notifications.dc.html" style="display:flex;align-items:center;min-height:44px;gap:8px;color:#4E1617;text-decoration:none;font-size:14px;font-weight:500">Notifications<sc-if value="{{ unread }}"><span style="min-width:22px;height:22px;padding:0 7px;background:#4E1617;color:#F1D7A5;font:600 11px 'Outfit';display:flex;align-items:center;justify-content:center;border-radius:11px">{{ unread }}</span></sc-if></a></header>
+<main style="flex:1;padding:clamp(20px,3vw,40px) clamp(16px,3vw,40px) 64px;max-width:1320px;width:100%">
+<sc-if value="{{ flash.msg }}"><div role="status" style="margin-bottom:20px;padding:14px 18px;background:{{ flash.bg }};color:{{ flash.fg }};font-weight:600;font-size:14px;border-radius:14px;display:flex;justify-content:space-between;gap:12px"><span>{{ flash.msg }}</span><button onClick="{{ clearFlash }}" aria-label="Dismiss" style="background:transparent;border:none;color:inherit;cursor:pointer;font-size:16px">×</button></div></sc-if>
+<sc-if value="{{ loading }}"><div role="status" style="padding:60px 0;color:#6A4744">Loading…</div></sc-if>
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<form onSubmit="{{ saveSettings }}" noValidate="{{ true }}" style="display:flex;flex-direction:column;gap:20px;max-width:1000px"><div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap"><h1 data-reveal="up" style="margin:0;font:700 clamp(30px,4vw,46px) 'Comfortaa';line-height:1.05">System Settings</h1><span style="font-size:13px;color:#6A4744">{{ dirtyLabel }}</span></div>
+<div data-reveal="up" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px"><h2 style="grid-column:1/-1;margin:0;font:700 19px 'Comfortaa'">Hotel Information</h2><label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Hotel Name<input value="{{ s.hotelName }}" onChange="{{ onS.hotelName }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label><label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Phone<input value="{{ s.phone }}" onChange="{{ onS.phone }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label><label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Email<input type="email" value="{{ s.email }}" onChange="{{ onS.email }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label><label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase;grid-column:1/-1">Address<input value="{{ s.address }}" onChange="{{ onS.address }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label></div>
+<div data-reveal="up" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px"><h2 style="grid-column:1/-1;margin:0;font:700 19px 'Comfortaa'">Booking Rules</h2><label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Check-in Time<input type="time" value="{{ s.checkInTime }}" onChange="{{ onS.checkInTime }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label><label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Check-out Time<input type="time" value="{{ s.checkOutTime }}" onChange="{{ onS.checkOutTime }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label><label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Service Fee (RM)<input type="number" min="0" max="500" value="{{ s.serviceFee }}" onChange="{{ onS.serviceFee }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label></div>
+<div data-reveal="up" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:4px"><h2 style="margin:0 0 8px;font:700 19px 'Comfortaa'">Features &amp; Security</h2><sc-for list="{{ toggles }}" as="t" hint-placeholder-count="5"><div style="display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid rgba(78,22,23,.08)"><div><div style="font-weight:600">{{ t.label }}</div><div style="font-size:13px;color:#6A4744">{{ t.note }}</div></div><button type="button" role="switch" aria-checked="{{ t.aria }}" aria-label="{{ t.label }}" onClick="{{ t.onClick }}" style="position:relative;flex:none;width:54px;height:32px;border:none;border-radius:16px;background:{{ t.trackBg }};cursor:pointer;transition:background .25s"><span style="position:absolute;top:3px;left:{{ t.knobX }};width:26px;height:26px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .25s"></span></button></div></sc-for>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:12px"><label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Admin session timeout (min)<input type="number" min="5" max="240" value="{{ s.adminTimeout }}" onChange="{{ onS.adminTimeout }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label><label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Manager session timeout (min)<input type="number" min="5" max="240" value="{{ s.managerTimeout }}" onChange="{{ onS.managerTimeout }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label></div></div>
+<sc-if value="{{ stErr }}"><div role="alert" style="padding:12px 14px;background:#EBD9D8;font-size:14px;font-weight:500;border-radius:12px">{{ stErr }}</div></sc-if>
+<div style="position:sticky;bottom:16px;display:flex;gap:10px;justify-content:flex-end;padding:14px;background:rgba(242,242,242,.9);backdrop-filter:blur(8px);border-radius:999px"><button type="button" onClick="{{ resetForm }}" style="height:44px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#4E1617;border:1px solid #4E1617;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;text-decoration:none;white-space:nowrap">Discard</button><button type="submit" style="height:44px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;background:#4E1617;color:#F1D7A5;border:none;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;text-decoration:none;white-space:nowrap">Save Settings</button></div></form>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {};
+  componentDidMount() { const w = () => { if (!window.AureliaAdmin) return (this._w = setTimeout(w, 30)); this.setState(window.AureliaAdmin.state(), () => window.AureliaAdmin.mount(this)); }; w(); }
+  componentWillUnmount() { clearTimeout(this._w); window.AureliaAdmin && window.AureliaAdmin.unmount(this); }
+  renderVals() { if (!(window.AureliaAdmin && this.state.cm)) return { loading: true, flash: {}, me: {} }; const v = window.AureliaAdmin.vals(this, 'settings'); return v; }
+}
+</script>
+</body>
+</html>

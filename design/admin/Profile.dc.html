@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Admin Profile — AURELIA STAY Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="admin-app.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,select,textarea,button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Admin Profile" style="min-height:100vh;background:#F2F2F2;display:flex;flex-wrap:wrap;align-items:stretch">
+<dc-import name="AdminSidebar" active="profile" hint-size="260px,100vh"></dc-import>
+<div style="flex:1 1 0;min-width:min(100%,320px);display:flex;flex-direction:column">
+<header style="height:64px;border-bottom:1px solid rgba(78,22,23,.10);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 clamp(16px,3vw,40px)"><span style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">{{ todayLabel }}</span><a href="Notifications.dc.html" style="display:flex;align-items:center;min-height:44px;gap:8px;color:#4E1617;text-decoration:none;font-size:14px;font-weight:500">Notifications<sc-if value="{{ unread }}"><span style="min-width:22px;height:22px;padding:0 7px;background:#4E1617;color:#F1D7A5;font:600 11px 'Outfit';display:flex;align-items:center;justify-content:center;border-radius:11px">{{ unread }}</span></sc-if></a></header>
+<main style="flex:1;padding:clamp(20px,3vw,40px) clamp(16px,3vw,40px) 64px;max-width:1320px;width:100%">
+<sc-if value="{{ flash.msg }}"><div role="status" style="margin-bottom:20px;padding:14px 18px;background:{{ flash.bg }};color:{{ flash.fg }};font-weight:600;font-size:14px;border-radius:14px;display:flex;justify-content:space-between;gap:12px"><span>{{ flash.msg }}</span><button onClick="{{ clearFlash }}" aria-label="Dismiss" style="background:transparent;border:none;color:inherit;cursor:pointer;font-size:16px">×</button></div></sc-if>
+<sc-if value="{{ loading }}"><div role="status" style="padding:60px 0;color:#6A4744">Loading…</div></sc-if>
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<section data-reveal="up" style="max-width:560px;background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:32px;display:flex;flex-direction:column;gap:18px"><div style="display:flex;gap:16px;align-items:center"><span style="width:60px;height:60px;border-radius:50%;background:#4E1617;color:#F1D7A5;display:flex;align-items:center;justify-content:center;font:700 24px 'Comfortaa'">{{ me.initial }}</span><h1 style="margin:0;font:700 28px 'Comfortaa'">My Profile</h1></div><dl style="margin:0;display:flex;flex-direction:column;gap:14px"><div><dt style="font-size:13px;color:#6A4744">Name</dt><dd style="margin:4px 0 0;font-weight:600">{{ me.name }}</dd></div><div><dt style="font-size:13px;color:#6A4744">Email</dt><dd style="margin:4px 0 0;font-weight:600">{{ me.email }}</dd></div><div><dt style="font-size:13px;color:#6A4744">Phone</dt><dd style="margin:4px 0 0;font-weight:600">{{ me.phone }}</dd></div><div><dt style="font-size:13px;color:#6A4744">Role</dt><dd style="margin:4px 0 0;font-weight:600">Administrator</dd></div><div><dt style="font-size:13px;color:#6A4744">Last login</dt><dd style="margin:4px 0 0;font-weight:600">{{ me.lastLogin }}</dd></div></dl><button onClick="{{ logout }}" style="align-self:flex-start;height:44px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#8A1F21;border:1px solid #8A1F21;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;text-decoration:none;white-space:nowrap">Logout</button></section>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {};
+  componentDidMount() { const w = () => { if (!window.AureliaAdmin) return (this._w = setTimeout(w, 30)); this.setState(window.AureliaAdmin.state(), () => window.AureliaAdmin.mount(this)); }; w(); }
+  componentWillUnmount() { clearTimeout(this._w); window.AureliaAdmin && window.AureliaAdmin.unmount(this); }
+  renderVals() { if (!(window.AureliaAdmin && this.state.cm)) return { loading: true, flash: {}, me: {} }; const v = window.AureliaAdmin.vals(this, 'profile'); return v; }
+}
+</script>
+</body>
+</html>

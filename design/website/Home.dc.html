@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>AURELIA STAY — Simple Stay. Better Value.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="../shared/aurelia-i18n.js"></script>
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,select,textarea,button{font-family:inherit}
+</style>
+</helmet>
+
+<div data-screen-label="Home" style="min-height:100vh;background:#F2F2F2">
+<dc-import name="SiteHeader" active="home" hint-size="100%,74px"></dc-import>
+
+<main>
+  <section aria-label="Welcome" style="max-width:1280px;margin:0 auto;padding:clamp(32px,6vw,72px) 24px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:clamp(32px,5vw,64px);align-items:end">
+    <div style="display:flex;flex-direction:column;gap:28px;padding-bottom:24px">
+      <div data-reveal="fade" style="display:flex;align-items:center;gap:12px;font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase"><span style="width:28px;height:1px;background:#4E1617"></span>Budget hotel · George Town, Penang</div>
+      <h1 style="margin:0;font-family:'Comfortaa',sans-serif;font-weight:700;font-size:clamp(52px,8.4vw,116px);line-height:.95;letter-spacing:-.02em">
+        <span data-reveal="up" style="display:block">Simple</span>
+        <span data-reveal="up" data-reveal-delay="120" style="display:block">Stay.</span>
+        <span data-reveal="up" data-reveal-delay="240" style="display:block;color:#174C38">Better Value.</span>
+      </h1>
+      <p data-reveal="up" data-reveal-delay="360" style="margin:0;font-size:clamp(17px,1.6vw,20px);line-height:1.55;max-width:420px;color:#6A4744">Comfortable rooms at a price that makes sense. Twenty rooms, four types, one clear price.</p>
+      <div data-reveal="up" data-reveal-delay="460" style="display:flex;flex-wrap:wrap;gap:12px">
+        <a href="Rooms.dc.html" style="height:54px;padding:0 28px;display:flex;align-items:center;gap:10px;background:#4E1617;color:#F1D7A5;text-decoration:none;font-weight:600;letter-spacing:.03em;border-radius:999px;transition:transform .3s,background .3s" style-hover="background:#174C38;color:#F1D7A5;transform:translateY(-2px)">Explore Rooms <span aria-hidden="true">→</span></a>
+        <a href="#find" style="height:54px;padding:0 28px;display:flex;align-items:center;border:1px solid #4E1617;color:#4E1617;text-decoration:none;font-weight:600;letter-spacing:.03em;border-radius:999px;transition:background .3s,color .3s" style-hover="background:#4E1617;color:#F1D7A5">Book a Room</a>
+      </div>
+    </div>
+    <div style="position:relative">
+      <div data-reveal="clip" style="height:clamp(420px,62vh,640px);overflow:hidden;border-radius:220px 220px 0 0;background:#174C38">
+        <img data-parallax="0.12" data-parallax-scale="1.18" src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1400&q=70&auto=format&fit=crop" alt="Standard Double room at AURELIA STAY" style="width:100%;height:100%;object-fit:cover;display:block">
+      </div>
+      <sc-if value="{{ ready }}"><div data-reveal="scale" data-reveal-delay="600" style="position:absolute;left:-18px;bottom:36px;background:#F1D7A5;color:#4E1617;padding:18px 22px;border-radius:16px;box-shadow:0 20px 40px rgba(78,22,23,.18);display:flex;flex-direction:column;gap:2px">
+        <span style="font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">From</span>
+        <span style="font:700 32px 'Comfortaa'">{{ minLabel }}<span style="font:500 14px 'Outfit'"> / night</span></span>
+      </div></sc-if>
+    </div>
+  </section>
+
+  <section id="find" aria-label="Find your room" style="max-width:1280px;margin:0 auto;padding:0 24px;position:relative;z-index:2;scroll-margin-top:100px">
+    <form data-reveal="up" onSubmit="{{ submitSearch }}" noValidate="{{ true }}" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.12);border-radius:24px;box-shadow:0 30px 60px rgba(78,22,23,.10);padding:clamp(20px,3vw,32px);display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;align-items:end;margin-top:-1px">
+      <div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap"><span style="font:700 22px 'Comfortaa'">Find Your Room</span><span style="font-size:13px;color:#6A4744">No sign-in needed to search</span></div>
+      <label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Check-in<input type="date" name="checkIn" value="{{ f.ci }}" min="{{ todayIso }}" onChange="{{ onF.ci }}" style="height:50px;padding:0 14px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 16px 'Outfit';border-radius:12px;width:100%" style-focus="outline:2px solid #174C38;outline-offset:1px"></label>
+      <label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Check-out<input type="date" name="checkOut" value="{{ f.co }}" min="{{ todayIso }}" onChange="{{ onF.co }}" style="height:50px;padding:0 14px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 16px 'Outfit';border-radius:12px;width:100%" style-focus="outline:2px solid #174C38;outline-offset:1px"></label>
+      <label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Guests<input type="number" name="guests" min="1" max="4" value="{{ f.g }}" onChange="{{ onF.g }}" style="height:50px;padding:0 14px;border:1px solid rgba(78,22,23,.22);background:#F7F7F7;color:#4E1617;font:400 16px 'Outfit';border-radius:12px;width:100%" style-focus="outline:2px solid #174C38;outline-offset:1px"></label>
+      <button type="submit" style="height:50px;background:#174C38;color:#F1D7A5;border:none;font-weight:600;font-size:15px;letter-spacing:.03em;cursor:pointer;border-radius:12px;transition:background .25s" style-hover="background:#0F3827">Search Availability</button>
+      <sc-if value="{{ fErr }}"><div role="alert" style="grid-column:1/-1;padding:12px 14px;background:#EBD9D8;color:#4E1617;font-size:14px;font-weight:500;border-radius:10px">{{ fErr }}</div></sc-if>
+    </form>
+  </section>
+
+  <section aria-label="At a glance" style="max-width:1280px;margin:0 auto;padding:clamp(72px,10vw,120px) 24px 40px">
+    <p data-reveal="up" style="margin:0 0 64px;font:700 clamp(28px,4vw,52px) 'Comfortaa';line-height:1.2;max-width:980px;text-wrap:balance">A small hotel with <span style="color:#174C38">honest prices</span>, clean rooms and a front desk that's always there.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border-top:1px solid #4E1617">
+      <div data-reveal="up" style="padding:28px 24px 0 0;display:flex;flex-direction:column;gap:6px"><div style="font:700 clamp(44px,5vw,64px) 'Comfortaa'"><span data-count="20">20</span></div><div style="font-size:15px;color:#6A4744">Rooms — small &amp; comfortable</div></div>
+      <div data-reveal="up" data-reveal-delay="100" style="padding:28px 24px 0 0;display:flex;flex-direction:column;gap:6px"><div style="font:700 clamp(44px,5vw,64px) 'Comfortaa'"><sc-if value="{{ ready }}"><span data-count="{{ minPrice }}" data-count-prefix="RM">{{ minLabel }}</span></sc-if></div><div style="font-size:15px;color:#6A4744">Starting rate per night</div></div>
+      <div data-reveal="up" data-reveal-delay="200" style="padding:28px 24px 0 0;display:flex;flex-direction:column;gap:6px"><div style="font:700 clamp(44px,5vw,64px) 'Comfortaa'">Free</div><div style="font-size:15px;color:#6A4744">Wi-Fi in every room</div></div>
+      <div data-reveal="up" data-reveal-delay="300" style="padding:28px 24px 0 0;display:flex;flex-direction:column;gap:6px"><div style="font:700 clamp(44px,5vw,64px) 'Comfortaa'"><span data-count="24" data-count-suffix="/7">24/7</span></div><div style="font-size:15px;color:#6A4744">Support for hotel guests</div></div>
+    </div>
+  </section>
+
+  <section aria-label="Our rooms" style="max-width:1280px;margin:0 auto;padding:64px 24px 96px">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:36px">
+      <div data-reveal="up"><div style="font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase;color:#6A4744;margin-bottom:10px">01 — Rooms</div><h2 style="margin:0;font:700 clamp(34px,4.5vw,56px) 'Comfortaa'">Our Rooms</h2></div>
+      <a data-reveal="fade" href="Rooms.dc.html" style="font-weight:600;font-size:15px;color:#174C38;display:inline-flex;align-items:center;min-height:44px;">{{ seeAll }}</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:24px">
+      <sc-for list="{{ featured }}" as="t" hint-placeholder-count="3">
+        <a href="{{ t.href }}" data-reveal="up" data-reveal-delay="{{ t.delay }}" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:#4E1617;transition:box-shadow .4s,translate .4s" style-hover="box-shadow:0 30px 60px rgba(78,22,23,.14);translate:0 -6px;color:#4E1617">
+          <div style="aspect-ratio:4/3;overflow:hidden;background:#CBCBCB"><img data-parallax="0.06" data-parallax-scale="1.12" src="{{ t.img }}" alt="{{ t.name }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <div style="padding:24px;display:flex;flex-direction:column;gap:10px;flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><h3 style="margin:0;font:700 22px 'Comfortaa'">{{ t.name }}</h3><span style="font-size:14px;white-space:nowrap"><strong style="font-size:20px">{{ t.priceLabel }}</strong>/night</span></div>
+            <div style="font-size:14px;color:#6A4744">{{ t.guestsLabel }} · {{ t.bed }} · Wi-Fi · Air Conditioning</div>
+            <span style="margin-top:auto;padding-top:10px;font-weight:600;font-size:14px;color:#174C38">View Room →</span>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <section aria-label="Designed for rest" style="background:#E6E6E6">
+    <div style="max-width:1280px;margin:0 auto;padding:clamp(72px,9vw,112px) 24px">
+      <div data-reveal="up" style="margin-bottom:40px;max-width:640px"><div style="font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase;color:#6A4744;margin-bottom:10px">02 — The feel</div><h2 style="margin:0;font:700 clamp(34px,4.5vw,56px) 'Comfortaa';line-height:1.05">Quiet colours, natural textures.</h2></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px">
+        <sc-for list="{{ textures }}" as="x" hint-placeholder-count="4">
+          <div data-reveal="up" data-reveal-delay="{{ x.delay }}" style="display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:{{ x.bg }};color:{{ x.fg }}">
+            <div style="padding:26px 24px 60px;display:flex;flex-direction:column;gap:6px"><span style="font:700 26px 'Comfortaa';line-height:1.1">{{ x.name }}</span><span style="font:600 11px 'Outfit';letter-spacing:.14em">{{ x.hex }}</span></div>
+            <div style="aspect-ratio:1;overflow:hidden;background:{{ x.stripe }}"><img data-parallax="0.08" data-parallax-scale="1.2" src="{{ x.src }}" alt="{{ x.texture }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Hotel facilities" style="background:#174C38;color:#F1D7A5;overflow:hidden">
+    <div style="padding:22px 0;border-bottom:1px solid rgba(241,215,165,.2)"><div data-marquee="50" style="display:flex;gap:40px;white-space:nowrap;width:max-content;font:500 15px 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase"><sc-for list="{{ ticker }}" as="w"><span>{{ w }}</span><span aria-hidden="true">✦</span></sc-for></div></div>
+    <div style="max-width:1280px;margin:0 auto;padding:clamp(72px,9vw,112px) 24px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:48px;align-items:start">
+        <div data-reveal="up" style="position:sticky;top:120px"><div style="font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px">03 — Facilities</div><h2 style="margin:0 0 20px;font:700 clamp(34px,4.5vw,56px) 'Comfortaa';line-height:1.05">Everything a short stay needs.</h2><a href="Facilities.dc.html" style="color:#F1D7A5;font-weight:600">All facilities →</a></div>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ facilities }}" as="x" hint-placeholder-count="6">
+            <div data-reveal="left" data-reveal-delay="{{ x.delay }}" style="display:grid;grid-template-columns:56px 1fr;gap:16px;padding:22px 0;border-top:1px solid rgba(241,215,165,.25)"><span style="font:500 13px 'JetBrains Mono';padding-top:6px">{{ x.num }}</span><div><div style="font:700 24px 'Comfortaa'">{{ x.name }}</div><div style="margin-top:6px;font-size:15px">{{ x.short }}</div></div></div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Gallery preview" style="max-width:1280px;margin:0 auto;padding:clamp(72px,9vw,112px) 24px">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:36px">
+      <div data-reveal="up"><div style="font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase;color:#6A4744;margin-bottom:10px">04 — Gallery</div><h2 style="margin:0;font:700 clamp(34px,4.5vw,56px) 'Comfortaa'">A Look Inside</h2></div>
+      <a data-reveal="fade" href="Gallery.dc.html" style="height:48px;padding:0 22px;display:flex;align-items:center;border:1px solid #4E1617;color:#4E1617;text-decoration:none;font-weight:600;font-size:14px;border-radius:999px" style-hover="background:#4E1617;color:#F1D7A5">View Full Gallery</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px">
+      <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="6">
+        <a href="Gallery.dc.html" data-reveal="scale" data-reveal-delay="{{ g.delay }}" style="position:relative;display:block;aspect-ratio:{{ g.ratio }};overflow:hidden;border-radius:18px;background:#CBCBCB"><img data-parallax="0.07" data-parallax-scale="1.15" src="{{ g.src }}" alt="{{ g.label }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"><span style="position:absolute;left:12px;bottom:12px;font:600 12px 'Outfit';background:rgba(242,242,242,.92);color:#4E1617;padding:6px 10px;border-radius:999px">{{ g.label }}</span></a>
+      </sc-for>
+    </div>
+  </section>
+
+  <section aria-label="Location" style="max-width:1280px;margin:0 auto;padding:0 24px clamp(72px,9vw,112px)">
+    <div data-reveal="up" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));border-radius:28px;overflow:hidden;background:#FFFFFF;border:1px solid rgba(78,22,23,.10)">
+      <div style="padding:clamp(28px,5vw,60px);display:flex;flex-direction:column;gap:16px">
+        <div style="font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase;color:#6A4744">05 — Location</div>
+        <h2 style="margin:0;font:700 clamp(32px,4vw,48px) 'Comfortaa'">Find Us</h2>
+        <div style="font-weight:600;letter-spacing:.06em">{{ s.hotelName }}</div>
+        <div style="font-size:16px;line-height:1.7;color:#6A4744">{{ s.address }}<br>{{ s.phone }}<br>Check-in {{ s.checkInLabel }} · Check-out {{ s.checkOutLabel }}</div>
+        <a href="{{ mapsHref }}" target="_blank" rel="noopener" style="align-self:flex-start;margin-top:8px;height:50px;padding:0 24px;display:flex;align-items:center;gap:10px;background:#174C38;color:#F1D7A5;text-decoration:none;font-weight:600;font-size:14px;border-radius:999px" style-hover="background:#0F3827;color:#F1D7A5">Get Directions ↗</a>
+      </div>
+      <div style="min-height:340px;overflow:hidden;background:#CBCBCB"><img data-parallax="0.06" data-parallax-scale="1.12" src="https://images.unsplash.com/photo-1455587734955-081b22074882?w=1200&q=70&auto=format&fit=crop" alt="AURELIA STAY building" loading="lazy" style="width:100%;height:100%;min-height:340px;object-fit:cover;display:block"></div>
+    </div>
+  </section>
+</main>
+
+<dc-import name="SiteFooter" hint-size="100%,520px"></dc-import>
+<sc-if value="{{ toast }}"><div role="status" style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:95;background:#174C38;color:#F1D7A5;padding:14px 22px;border-radius:999px;font-weight:600;font-size:15px;box-shadow:0 12px 30px rgba(0,0,0,.2)">{{ toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { ready: false, f: { ci: '', co: '', g: '2' }, fErr: '', toast: '' };
+  componentDidMount() {
+    window.AureliaUI ? null : null;
+    const w = () => {
+      if (window.AureliaStore && window.AureliaUI) {
+        const S = window.AureliaStore; const T = S.today();
+        this._un = S.subscribe(() => this.forceUpdate());
+        this.setState({ ready: true, f: { ci: S.addDays(T, 1), co: S.addDays(T, 3), g: '2' }, toast: window.AureliaUI.takeFlash() });
+        this._tt = setTimeout(() => this.setState({ toast: '' }), 3200);
+      } else this._t = setTimeout(w, 30);
+    }; w();
+  }
+  componentWillUnmount() { this._un && this._un(); clearTimeout(this._t); clearTimeout(this._tt); }
+  setF(k) { return e => { const v = e.target.value; this.setState(s => ({ f: { ...s.f, [k]: v }, fErr: '' })); }; }
+  renderVals() {
+    const st = this.state; const S = window.AureliaStore, U = window.AureliaUI;
+    const TX = [['Cool Stone', 'HEX CBCBCB', '#CBCBCB', '#BDBDBD', '#4E1617', 'clean white bathroom', 'bath'], ['Paper Soul', 'HEX F2F2F2', '#F2F2F2', '#E4E4E4', '#4E1617', 'fresh white linen', 'room3'], ['Oxford Forest', 'HEX 174C38', '#174C38', '#1F5C45', '#F1D7A5', 'fern leaves', 'fern'], ['Dark Burgundi', 'HEX 4E1617', '#4E1617', '#5C1F20', '#F1D7A5', 'green leaves', 'leaves']];
+    const FAC = [['Free Wi-Fi', 'Available throughout the hotel.'], ['Parking', 'On-site, for hotel guests.'], ['Air Conditioning', 'In every room.'], ['Reception', 'Front desk assistance.'], ['CCTV', 'Covering common areas.'], ['24/7 Support', 'Guest assistance, day and night.']];
+        const base = {
+      f: st.f, fErr: st.fErr, toast: st.toast, todayIso: S ? S.today() : '',
+      onF: { ci: this.setF('ci'), co: this.setF('co'), g: this.setF('g') },
+      textures: TX.map(([name, hex, bg, stripe, fg, texture, key], i) => ({ name, hex, bg, stripe, fg, texture, src: U ? U.img(key, 700) : '', delay: i * 90 })),
+      facilities: FAC.map(([name, short], i) => ({ name, short, num: '0' + (i + 1), delay: i * 70 })),
+      ticker: ['Free Wi-Fi', 'On-site parking', 'Air conditioning', 'Private bathroom', '24/7 reception', 'CCTV in common areas', 'Free Wi-Fi', 'On-site parking', 'Air conditioning', 'Private bathroom', '24/7 reception', 'CCTV in common areas'],
+      gallery: U ? U.GALLERY.slice(0, 6).map((g, i) => ({ ...g, src: g.thumb, ratio: i % 3 === 1 ? '4/3' : '4/5', delay: (i % 3) * 90 })) : [],
+      submitSearch: e => {
+        e.preventDefault(); const { ci, co, g } = st.f; const err = S.validateStay(ci, co, g);
+        if (err) return this.setState({ fErr: err });
+        location.href = 'Rooms.dc.html?ci=' + ci + '&co=' + co + '&g=' + Number(g);
+      }
+    };
+    if (!st.ready) return { ...base, ready: false, featured: [], s: {}, mapsHref: '#', seeAll: 'See all 4 room types →' };
+    const s = U.settings(); const act = S.db.roomTypes.filter(t => t.active); const minPrice = act.length ? Math.min(...act.map(t => t.price)) : 0;   // live catalogue: the admin can change prices / hide types
+    return { ...base, s, ready: act.length > 0, minPrice, minLabel: S.rm(minPrice), seeAll: 'See all ' + act.length + ' room types →', mapsHref: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(s.address), featured: S.db.roomTypes.filter(t => t.active).slice(0, 3).map((t, i) => ({ ...U.typeVM(t), delay: i * 120 })) };
+  }
+}
+</script>
+</body>
+</html>

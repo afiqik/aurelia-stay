@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>User Account — AURELIA STAY Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="admin-app.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,select,textarea,button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="User Account" style="min-height:100vh;background:#F2F2F2;display:flex;flex-wrap:wrap;align-items:stretch">
+<dc-import name="AdminSidebar" active="users" hint-size="260px,100vh"></dc-import>
+<div style="flex:1 1 0;min-width:min(100%,320px);display:flex;flex-direction:column">
+<header style="height:64px;border-bottom:1px solid rgba(78,22,23,.10);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 clamp(16px,3vw,40px)"><span style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">{{ todayLabel }}</span><a href="Notifications.dc.html" style="display:flex;align-items:center;min-height:44px;gap:8px;color:#4E1617;text-decoration:none;font-size:14px;font-weight:500">Notifications<sc-if value="{{ unread }}"><span style="min-width:22px;height:22px;padding:0 7px;background:#4E1617;color:#F1D7A5;font:600 11px 'Outfit';display:flex;align-items:center;justify-content:center;border-radius:11px">{{ unread }}</span></sc-if></a></header>
+<main style="flex:1;padding:clamp(20px,3vw,40px) clamp(16px,3vw,40px) 64px;max-width:1320px;width:100%">
+<sc-if value="{{ flash.msg }}"><div role="status" style="margin-bottom:20px;padding:14px 18px;background:{{ flash.bg }};color:{{ flash.fg }};font-weight:600;font-size:14px;border-radius:14px;display:flex;justify-content:space-between;gap:12px"><span>{{ flash.msg }}</span><button onClick="{{ clearFlash }}" aria-label="Dismiss" style="background:transparent;border:none;color:inherit;cursor:pointer;font-size:16px">×</button></div></sc-if>
+<sc-if value="{{ loading }}"><div role="status" style="padding:60px 0;color:#6A4744">Loading…</div></sc-if>
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<section style="display:flex;flex-direction:column;gap:18px;max-width:920px"><a href="Users.dc.html" style="font-size:14px;display:inline-flex;align-items:center;min-height:44px;align-self:flex-start">← Users</a><sc-if value="{{ missing }}"><div style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:40px;display:flex;flex-direction:column;gap:12px;align-items:flex-start"><div style="font:700 72px 'Comfortaa';line-height:1">404</div><h1 style="margin:0;font:700 24px 'Comfortaa'">{{ missing }}</h1><a href="Dashboard.dc.html">Back to Dashboard</a></div></sc-if><sc-if value="{{ found }}"><div data-reveal="up" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:clamp(20px,3vw,36px);display:flex;flex-direction:column;gap:20px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><div style="display:flex;gap:16px;align-items:center"><span style="width:64px;height:64px;border-radius:50%;background:#4E1617;color:#F1D7A5;display:flex;align-items:center;justify-content:center;font:700 26px 'Comfortaa'">{{ ud.initial }}</span><div><div style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">{{ ud.roleLabel }} account</div><h1 style="margin:4px 0 0;font:700 30px 'Comfortaa'">{{ ud.name }}</h1></div></div><span style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><sc-if value="{{ ud.online }}"><span style="display:inline-flex;align-items:center;gap:6px;font:600 12px 'Outfit';color:#174C38"><span style="width:9px;height:9px;border-radius:50%;background:#174C38"></span>Online</span></sc-if><span style="padding:4px 10px;font:600 11px 'Outfit';letter-spacing:.08em;text-transform:uppercase;border-radius:999px;white-space:nowrap;padding:7px 14px;background:{{ ud.chip.bg }};color:{{ ud.chip.fg }}">{{ ud.chip.label }}</span></span></div>
+<dl style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;border-top:1px solid rgba(78,22,23,.12);padding-top:18px"><sc-for list="{{ ud.fields }}" as="f"><div><dt style="font-size:13px;color:#6A4744">{{ f.k }}</dt><dd style="margin:4px 0 0;font-weight:600;word-break:break-all">{{ f.v }}</dd></div></sc-for></dl>
+<sc-if value="{{ ud.selfNote }}"><div style="font-size:14px;color:#6A4744">{{ ud.selfNote }}</div></sc-if>
+<div style="display:flex;gap:10px;flex-wrap:wrap"><sc-if value="{{ ud.toggleLabel }}"><button onClick="{{ ud.onToggle }}" style="height:46px;padding:0 20px;background:transparent;border:1px solid {{ ud.toggleColor }};color:{{ ud.toggleColor }};font-weight:600;cursor:pointer;border-radius:999px">{{ ud.toggleLabel }} Account</button></sc-if></div>
+<sc-if value="{{ ud.hasBookings }}"><div><h2 style="margin:0 0 8px;font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">Bookings</h2><sc-for list="{{ ud.bookings }}" as="b"><a href="{{ b.href }}" style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:11px 0;border-bottom:1px solid rgba(78,22,23,.08);color:#4E1617;text-decoration:none;font-size:14px"><span style="font:500 13px 'JetBrains Mono'">{{ b.ref }}</span><span>{{ b.typeName }} · {{ b.ciS }} → {{ b.coS }}</span><span>{{ b.totalL }}</span><span style="padding:4px 10px;font:600 11px 'Outfit';letter-spacing:.08em;text-transform:uppercase;border-radius:999px;white-space:nowrap;background:{{ b.chip.bg }};color:{{ b.chip.fg }}">{{ b.chip.label }}</span></a></sc-for></div></sc-if></div></sc-if></section>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {};
+  componentDidMount() { const w = () => { if (!window.AureliaAdmin) return (this._w = setTimeout(w, 30)); this.setState(window.AureliaAdmin.state(), () => window.AureliaAdmin.mount(this)); }; w(); }
+  componentWillUnmount() { clearTimeout(this._w); window.AureliaAdmin && window.AureliaAdmin.unmount(this); }
+  renderVals() { if (!(window.AureliaAdmin && this.state.cm)) return { loading: true, flash: {}, me: {} }; const v = window.AureliaAdmin.vals(this, 'user'); return v; }
+}
+</script>
+</body>
+</html>

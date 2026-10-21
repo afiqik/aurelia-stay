@@ -1,0 +1,496 @@
+/* AURELIA STAY — shared demo data + business engine (localStorage-backed, shared by all portals) */
+(function () {
+  const KEY = 'aurelia-stay-db-v2';
+  const pad = n => String(n).padStart(2, '0');
+  const isoOf = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const parse = s => { const a = String(s).split('-').map(Number); return new Date(a[0], a[1] - 1, a[2]); };
+  const today = () => isoOf(new Date());
+  const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return isoOf(d); };
+  const nightsBetween = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
+  const fmtDate = (s, o) => s ? parse(s).toLocaleDateString('en-GB', o || { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  const fmtShort = s => fmtDate(s, { day: 'numeric', month: 'short' });
+  const fmtTime = iso => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const fmtStamp = iso => { const d = new Date(iso); return isoOf(d) + ' ' + d.toLocaleTimeString('en-GB'); };
+  const rm = n => 'RM' + Number(n).toLocaleString('en-MY', { maximumFractionDigits: 2 });
+  const ago = iso => {
+    const m = Math.round((Date.now() - new Date(iso)) / 6e4);
+    if (m < 1) return 'just now'; if (m < 60) return m + ' min ago';
+    const h = Math.round(m / 60); if (h < 24) return h + (h > 1 ? ' hours' : ' hour') + ' ago';
+    const d = Math.round(h / 24); return d + (d > 1 ? ' days' : ' day') + ' ago';
+  };
+  const stampAt = (days, h, m) => { const d = new Date(); d.setDate(d.getDate() + days); d.setHours(h, m, 0, 0); return d.toISOString(); };
+  const refOf = n => 'AUR-2026-' + String(n).padStart(5, '0');
+
+  const AMEN = ['Wi-Fi', 'Air Conditioning', 'Private Bathroom', 'TV'];
+  const TYPES = [
+    { id: 1, name: 'Standard Single', price: 80, capacity: 1, bed: 'Single Bed', size: 14, amenities: AMEN, description: 'A compact, quiet room for solo travellers and short business stays.', active: true },
+    { id: 2, name: 'Standard Double', price: 85, capacity: 2, bed: 'Double Bed', size: 20, amenities: AMEN, description: 'A simple and comfortable room designed for short stays, business trips and couples.', active: true },
+    { id: 3, name: 'Deluxe Double', price: 90, capacity: 2, bed: 'Queen Bed', size: 24, amenities: AMEN.concat(['Work Desk']), description: 'A little more space to unwind, with a queen bed and a small work desk.', active: true },
+    { id: 4, name: 'Family Room', price: 95, capacity: 4, bed: '1 Queen + 2 Single', size: 30, amenities: AMEN, description: 'Room for up to four guests — practical for small families travelling together.', active: true }
+  ];
+
+  function seed() {
+    const T = today();
+    const st = { 102: 'OCCUPIED', 201: 'OCCUPIED', 203: 'OCCUPIED', 302: 'OCCUPIED', 401: 'OCCUPIED', 104: 'RESERVED', 202: 'RESERVED', 205: 'RESERVED', 301: 'RESERVED', 103: 'CLEANING', 204: 'CLEANING', 105: 'MAINTENANCE' };
+    const rooms = [];
+    [[1, 101, 6], [2, 201, 8], [3, 301, 4], [4, 401, 2]].forEach(([t, s, c]) => { for (let i = 0; i < c; i++) { const n = s + i; rooms.push({ id: n, number: String(n), typeId: t, floor: Math.floor(n / 100), status: st[n] || 'AVAILABLE' }); } });
+    const staff = (id, role, name, email, password, phone, extra) => Object.assign({ id, role, name, email, password, phone, status: 'active', authProvider: 'password', createdAt: '2026-01-05T09:00:00.000Z', lastLoginAt: stampAt(-1, 8, 30), failed: 0, lockedUntil: 0 }, extra || {});
+    const cust = (id, name, email, phone, created, extra) => Object.assign({ id, role: 'customer', name, email, phone, googleUid: 'g-' + (104000000 + email.length * 7919 + name.length * 131), status: 'active', authProvider: 'google', createdAt: created + 'T10:00:00.000Z', lastLoginAt: null }, extra || {});
+    const users = [
+      staff('u-admin1', 'admin', 'Admin 01', 'admin@aureliastay.local', 'admin123', '04-261 8890', { primary: true }),
+      staff('u-admin2', 'admin', 'Admin 02', 'admin2@aureliastay.local', 'admin123', '04-261 8891'),
+      staff('u-mgr1', 'hotel_manager', 'Nadia Rahman', 'manager@aureliastay.local', 'manager123', '012-445 7788'),
+      staff('u-mgr2', 'hotel_manager', 'Hafiz Omar', 'manager2@aureliastay.local', 'manager123', '013-220 4519', { createdAt: '2026-03-12T09:00:00.000Z' }),
+      cust('c-afiq', 'Muhammad Afiq', 'afiq@gmail.com', '018-353 4410', '2026-09-20'),
+      cust('c-ali', 'Ali Hassan', 'ali.hassan@gmail.com', '012-778 2231', '2026-07-02'),
+      cust('c-sara', 'Sara Lim', 'sara.lim@gmail.com', '016-224 9087', '2026-06-18'),
+      cust('c-nurul', 'Nurul Izzah', 'nurul.izzah@gmail.com', '019-661 3025', '2026-08-01'),
+      cust('c-daniel', 'Daniel Wong', 'daniel.wong@gmail.com', '017-330 5518', '2026-05-27'),
+      cust('c-farah', 'Farah Aziz', 'farah.aziz@gmail.com', '011-2345 6671', '2026-09-03'),
+      cust('c-kumar', 'Kumar Selvam', 'kumar.selvam@gmail.com', '013-908 1142', '2026-08-22'),
+      cust('c-mei', 'Tan Mei Ling', 'meiling.tan@gmail.com', '012-605 7730', '2026-09-11'),
+      cust('c-hakim', 'Hakim Yusof', 'hakim.yusof@gmail.com', '014-552 0917', '2026-04-09', { status: 'disabled' })
+    ];
+    const bookings = [];
+    const mk = (num, who, roomNo, ciOff, n, g, status, source) => {
+      const room = rooms.find(r => r.number === String(roomNo)); const t = TYPES.find(x => x.id === room.typeId);
+      const u = typeof who === 'string' ? users.find(x => x.id === who) : null; const guest = u || who;
+      const ci = addDays(T, ciOff), co = addDays(ci, n);
+      bookings.push({
+        id: 'b' + num, ref: refOf(num), customerId: u ? u.id : null, roomId: room.id, typeId: t.id, source: source || 'ONLINE',
+        checkIn: ci, checkOut: co, guests: Math.min(g, t.capacity), roomPrice: t.price, nights: n, serviceFee: 10, subtotal: t.price * n, total: t.price * n + 10,
+        status, guestName: guest.name, guestEmail: guest.email || '', guestPhone: guest.phone || '',
+        createdAt: stampAt(Math.min(0, ciOff - 6), 9 + num % 9, (num * 7) % 60),
+        checkedInAt: status === 'CHECKED_IN' || status === 'COMPLETED' ? stampAt(ciOff, 14, 10 + num % 40) : null,
+        checkedOutAt: status === 'COMPLETED' ? stampAt(ciOff + n, 11, 5 + num % 50) : null,
+        cancelledAt: null, cancelledBy: null, cancellationReason: null
+      });
+      return bookings[bookings.length - 1];
+    };
+    const walk = [{ name: 'Faizal Karim', phone: '012-889 0021' }, { name: 'Lee Chong', phone: '016-310 4471' }, { name: 'Rosnah Ismail', phone: '019-202 8834' }, { name: 'Arun Pillai', phone: '017-661 0098' }, { name: 'Siti Aminah', phone: '013-455 2290' }];
+    const custIds = ['c-sara', 'c-ali', 'c-daniel', 'c-nurul', 'c-farah', 'c-kumar', 'c-mei', 'c-afiq', 'c-hakim'];
+    const cyc = ['101', '201', '304', '402', '106', '202', '206', '301', '207', '104', '203', '401', '208', '302', '102', '205', '303', '105', '204'];
+    mk(91, 'c-afiq', 303, -16, 2, 2, 'COMPLETED');
+    for (let i = 0; i < 19; i++) mk(92 + i, i % 4 === 3 ? walk[i % 5] : custIds[i % 9], cyc[i], -58 + Math.round(i * 2.6), 1 + i % 3, 1 + i % 2, 'COMPLETED', i % 4 === 3 ? 'WALK_IN' : 'ONLINE');
+    mk(111, 'c-kumar', 103, -2, 2, 1, 'COMPLETED');
+    mk(112, walk[2], 204, -1, 1, 2, 'COMPLETED', 'WALK_IN');
+    const c1 = mk(113, 'c-daniel', 206, 4, 2, 2, 'CANCELLED'); Object.assign(c1, { cancelledAt: stampAt(-2, 20, 14), cancelledBy: 'c-daniel', cancellationReason: 'Cancelled by customer' });
+    const c2 = mk(114, 'c-ali', 303, -10, 2, 2, 'CANCELLED'); Object.assign(c2, { cancelledAt: stampAt(-14, 11, 2), cancelledBy: 'c-ali', cancellationReason: 'Cancelled by customer' });
+    mk(116, 'c-ali', 102, -2, 2, 1, 'CHECKED_IN');
+    mk(117, 'c-sara', 201, -1, 3, 2, 'CHECKED_IN');
+    mk(118, 'c-daniel', 203, -3, 3, 2, 'CHECKED_IN');
+    mk(119, walk[0], 302, -1, 2, 2, 'CHECKED_IN', 'WALK_IN');
+    mk(120, 'c-nurul', 401, 0, 2, 3, 'CHECKED_IN');
+    mk(121, 'c-farah', 104, 0, 2, 1, 'CONFIRMED');
+    mk(122, 'c-kumar', 202, 0, 3, 2, 'CONFIRMED');
+    mk(123, 'c-mei', 301, 5, 2, 2, 'CONFIRMED');
+    const c3 = mk(124, walk[3], 207, 2, 2, 2, 'CANCELLED', 'WALK_IN'); Object.assign(c3, { cancelledAt: stampAt(-1, 15, 40), cancelledBy: 'u-admin1', cancellationReason: 'Administrative cancellation due to duplicate reservation' });
+    mk(125, 'c-afiq', 205, 27, 3, 2, 'CONFIRMED');
+
+    const housekeeping = [
+      { id: 'HK-0029', roomId: 101, bookingId: 'b92', status: 'COMPLETED', createdAt: stampAt(-1, 12, 10), completedAt: stampAt(0, 8, 55), assignedTo: 'u-mgr1' },
+      { id: 'HK-0031', roomId: 103, bookingId: 'b111', status: 'DIRTY', createdAt: stampAt(0, 8, 10), completedAt: null, assignedTo: null },
+      { id: 'HK-0032', roomId: 204, bookingId: 'b112', status: 'CLEANING', createdAt: stampAt(0, 8, 20), completedAt: null, assignedTo: 'u-mgr1' }
+    ];
+    const maintenance = [
+      { id: 'REQ-0012', roomId: 105, reportedBy: 'u-mgr1', issueType: 'Air Conditioning', description: 'Air conditioner not working — unit blowing warm air.', priority: 'HIGH', status: 'OPEN', createdAt: stampAt(0, 9, 40), updatedAt: stampAt(0, 9, 40), resolvedAt: null },
+      { id: 'REQ-0011', roomId: 203, reportedBy: 'u-mgr2', issueType: 'Electrical', description: 'Bathroom light flickering.', priority: 'LOW', status: 'RESOLVED', createdAt: stampAt(-6, 15, 2), updatedAt: stampAt(-5, 10, 30), resolvedAt: stampAt(-5, 10, 30) }
+    ];
+    let nid = 1;
+    const N = (to, type, title, message, at, read) => ({ id: 'n' + (nid++), to, type, title, message, at, read: !!read });
+    const notifications = [
+      N('c-afiq', 'BOOKING_COMPLETED', 'Stay completed', 'Thanks for staying with us. Booking AUR-2026-00091 is complete.', stampAt(-14, 11, 20), true),
+      N('c-afiq', 'BOOKING_CONFIRMED', 'Booking AUR-2026-00125 confirmed', 'Room 205 is reserved for ' + fmtShort(addDays(T, 27)) + ' – ' + fmtShort(addDays(T, 30)) + '.', stampAt(-2, 21, 4)),
+      N('managers', 'CHECK_IN_REQUIRED', 'AUR-2026-00121 requires check-in', 'Farah Aziz · Room 104 · arriving today.', stampAt(0, 7, 0)),
+      N('managers', 'CHECK_IN_REQUIRED', 'AUR-2026-00122 requires check-in', 'Kumar Selvam · Room 202 · arriving today.', stampAt(0, 7, 0)),
+      N('managers', 'HOUSEKEEPING_REQUIRED', 'Room 103 requires cleaning', 'Guest checked out of AUR-2026-00111.', stampAt(0, 8, 10)),
+      N('managers', 'MAINTENANCE_REPORTED', 'Room 105 has a new maintenance request', 'REQ-0012 · Air Conditioning · HIGH', stampAt(0, 9, 40)),
+      N('admins', 'MAINTENANCE_ALERT', 'Room 105 entered maintenance', 'REQ-0012 reported by Nadia Rahman.', stampAt(0, 9, 40)),
+      N('admins', 'ADMIN_BOOKING_OVERRIDE', 'Booking AUR-2026-00124 cancelled', 'Administrative cancellation due to duplicate reservation.', stampAt(-1, 15, 40), true)
+    ];
+    let aid = 1;
+    const A = (at, actorId, action, entityType, entityId, before, after, reason) => ({ id: 'AL-' + String(aid++).padStart(5, '0'), at, actorId, action, entityType, entityId, before: before || null, after: after || null, reason: reason || null, ip: '127.0.0.1', userAgent: 'Mozilla/5.0 (demo)' });
+    const audit = [
+      A(stampAt(-1, 15, 40), 'u-admin1', 'ADMIN_BOOKING_OVERRIDE', 'booking', 'AUR-2026-00124', { status: 'CONFIRMED' }, { status: 'CANCELLED' }, 'Administrative cancellation due to duplicate reservation'),
+      A(stampAt(-1, 16, 20), 'u-admin1', 'UPDATE_SETTINGS', 'system_settings', '1', { phone: '+60 4-261 8800' }, { phone: '+60 4-261 8890' }),
+      A(stampAt(0, 8, 10), 'u-mgr1', 'BOOKING_CHECKED_OUT', 'booking', 'AUR-2026-00111', { status: 'CHECKED_IN', room: 'OCCUPIED' }, { status: 'COMPLETED', room: 'CLEANING' }),
+      A(stampAt(0, 8, 55), 'u-mgr1', 'ROOM_MARKED_AVAILABLE', 'room', '101', { status: 'CLEANING' }, { status: 'AVAILABLE' }),
+      A(stampAt(0, 9, 14), 'c-nurul', 'BOOKING_CREATED', 'booking', 'AUR-2026-00120', null, { status: 'CONFIRMED', room: '401', total: 200 }),
+      A(stampAt(0, 9, 28), 'u-mgr1', 'BOOKING_CHECKED_IN', 'booking', 'AUR-2026-00120', { status: 'CONFIRMED', room: 'RESERVED' }, { status: 'CHECKED_IN', room: 'OCCUPIED' }),
+      A(stampAt(0, 9, 40), 'u-mgr1', 'MAINTENANCE_REPORTED', 'maintenance_request', 'REQ-0012', { room: 'AVAILABLE' }, { room: 'MAINTENANCE', priority: 'HIGH' })
+    ];
+    return {
+      v: 2, seededOn: T, roomTypes: TYPES.map(t => Object.assign({}, t)), rooms, users, bookings, housekeeping, maintenance, notifications, audit, messages: [],
+      settings: { hotelName: 'AURELIA STAY', address: '38 Lebuh Chulia, 10200 George Town, Pulau Pinang', phone: '+60 4-261 8890', email: 'hello@aureliastay.local', checkInTime: '14:00', checkOutTime: '12:00', serviceFee: 10, allowOnline: true, allowWalkIn: true, allowCancel: true, adminTimeout: 30, managerTimeout: 30, failedLoginProtection: true, auditLogging: true },
+      session: { customer: null, hotel_manager: null, admin: null },
+      seq: { booking: 126, hk: 33, req: 13, notif: nid, audit: aid, msg: 1 }
+    };
+  }
+
+  function load() {
+    try { const s = localStorage.getItem(KEY); if (s) { const d = JSON.parse(s); if (d && d.v === 2) return d; } } catch (e) { }
+    const d = seed(); persist(d); return d;
+  }
+  function persist(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { } }
+  let db = load();
+  const subs = new Set();
+  const emit = () => subs.forEach(f => { try { f(); } catch (e) { console.error(e); } });
+  window.addEventListener('storage', e => { if (e.key !== KEY || !e.newValue) return; try { const d = JSON.parse(e.newValue); if (d && d.v === 2) { db = d; emit(); } } catch (x) { } });
+
+  class AppError extends Error { constructor(code, message, http) { super(message); this.code = code; this.http = http || 400; } }
+  const fail = (code, msg, http) => { throw new AppError(code, msg, http); };
+  function tx(fn) {
+    const snap = JSON.stringify(db);
+    try { const r = fn(); persist(db); emit(); return Object.assign({ ok: true }, r || {}); }
+    catch (err) { db = JSON.parse(snap); if (!(err instanceof AppError)) console.error(err); return { ok: false, code: err.code || 'SERVER_500', error: err.message || 'Something went wrong.', http: err.http || 500 }; }
+  }
+
+  const user = id => db.users.find(u => u.id === id);
+  const room = id => db.rooms.find(r => r.id === Number(id));
+  const roomByNo = n => db.rooms.find(r => r.number === String(n).trim());
+  const type = id => db.roomTypes.find(t => t.id === Number(id));
+  const booking = ref => db.bookings.find(b => b.ref === ref || b.id === ref);
+  const nextSeq = k => db.seq[k]++;
+  const notify = (to, t, title, message) => db.notifications.unshift({ id: 'n' + nextSeq('notif'), to, type: t, title, message, at: new Date().toISOString(), read: false });
+  const audit = (actorId, action, entityType, entityId, before, after, reason) => { db.audit.unshift({ id: 'AL-' + String(nextSeq('audit')).padStart(5, '0'), at: new Date().toISOString(), actorId, action, entityType, entityId: String(entityId), before: before || null, after: after || null, reason: reason || null, ip: '127.0.0.1', userAgent: navigator.userAgent.slice(0, 60) }); };
+  const actorOf = id => { const u = user(id); if (!u || u.status !== 'active') fail('AUTH_001', 'Authentication required.', 401); return u; };
+  const isStaff = u => u.role === 'hotel_manager' || u.role === 'admin';
+  const ACTIVE = s => s === 'CONFIRMED' || s === 'CHECKED_IN';
+
+  function validateStay(ci, co, g) {
+    if (!ci) return 'Please select your check-in date';
+    if (!co) return 'Please select your check-out date';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ci) || isNaN(parse(ci))) return 'Please enter a valid check-in date';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(co) || isNaN(parse(co))) return 'Please enter a valid check-out date';
+    if (ci < today()) return 'Check-in date cannot be in the past';
+    if (co <= ci) return 'Check-out date must be after check-in';
+    if (nightsBetween(ci, co) > 30) return 'Stays are limited to 30 nights';
+    const n = Number(g);
+    if (!Number.isInteger(n) || n < 1) return 'Please enter at least 1 guest';
+    if (n > 4) return 'No rooms available for ' + n + ' guests.';
+    return '';
+  }
+  const roomFree = (roomId, ci, co, exclude) => !db.bookings.some(b => b.roomId === roomId && b.id !== exclude && ACTIVE(b.status) && b.checkIn < co && b.checkOut > ci);
+  const candidates = (typeId, ci, co, exclude) => db.rooms.filter(r => r.typeId === Number(typeId) && r.status !== 'MAINTENANCE' && r.status !== 'OUT_OF_SERVICE' && roomFree(r.id, ci, co, exclude)).sort((a, b) => a.id - b.id);
+  function availability(ci, co, g) {
+    return db.roomTypes.filter(t => t.active).map(t => {
+      const total = db.rooms.filter(r => r.typeId === t.id).length;
+      const available = candidates(t.id, ci, co).length;
+      return { typeId: t.id, name: t.name, price: t.price, capacity: t.capacity, total, available, fits: t.capacity >= Number(g) };
+    });
+  }
+  function releaseRoom(roomId) {
+    const r = room(roomId);
+    if (r && r.status === 'RESERVED' && !db.bookings.some(b => b.roomId === r.id && b.status === 'CONFIRMED')) r.status = 'AVAILABLE';
+  }
+
+  const api = {
+    KEY, get db() { return db; }, today, addDays, nightsBetween, fmtDate, fmtShort, fmtTime, fmtStamp, rm, ago, parse, isoOf,
+    user, room, roomByNo, type, booking, validateStay, availability, candidates,
+    subscribe(fn) { subs.add(fn); return () => subs.delete(fn); },
+    reset() { db = seed(); persist(db); emit(); },
+    sessionUser(role) {
+      const s = db.session[role]; if (!s) return null;
+      const u = user(s.userId); if (!u || u.status !== 'active' || u.role !== role) return null;
+      if (role !== 'customer') { const mins = role === 'admin' ? db.settings.adminTimeout : db.settings.managerTimeout; if (Date.now() - s.at > mins * 60000) return { expired: true }; }
+      return u;
+    },
+    touch(role) { const s = db.session[role]; if (s) { s.at = Date.now(); persist(db); } },
+    logout(role) { return tx(() => { const s = db.session[role]; if (s) audit(s.userId, 'LOGOUT', 'user', s.userId); db.session[role] = null; }); },
+    previewRoom(typeId, ci, co) { const c = candidates(typeId, ci, co); return c[0] ? c[0].number : null; },
+    notificationsFor(u) { if (!u) return []; const keys = [u.id]; if (u.role === 'hotel_manager') keys.push('managers'); if (u.role === 'admin') keys.push('admins'); return db.notifications.filter(n => keys.includes(n.to)); },
+    markRead(id) { return tx(() => { const n = db.notifications.find(x => x.id === id); if (n) n.read = true; }); },
+    markAllRead(u) { return tx(() => { api.notificationsFor(u).forEach(n => n.read = true); }); },
+
+    googleSignIn({ email, name }) {
+      return tx(() => {
+        email = String(email || '').trim().toLowerCase(); name = String(name || '').trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail('VALIDATION_001', 'Please enter a valid Google email address.', 422);
+        const existing = db.users.find(u => u.email.toLowerCase() === email);
+        if (existing && isStaff(existing)) fail('AUTH_004', 'Staff accounts must sign in with email and password.', 403);
+        let u = existing, isNew = false;
+        if (u && u.status !== 'active') fail('AUTH_003', 'This account has been disabled. Please contact the hotel.', 403);
+        if (!u) {
+          if (!name) fail('VALIDATION_001', 'Please enter your name.', 422);
+          u = { id: 'c-' + Date.now().toString(36), role: 'customer', name, email, phone: '', googleUid: 'g-' + Math.floor(1e8 + Math.random() * 9e8), status: 'active', authProvider: 'google', createdAt: new Date().toISOString(), lastLoginAt: null };
+          db.users.push(u); isNew = true;
+          notify(u.id, 'CUSTOMER_REGISTERED', 'Welcome to AURELIA STAY', 'Your account is ready. Add your phone number to start booking.');
+          audit(u.id, 'CUSTOMER_REGISTERED', 'user', u.id, null, { email, provider: 'google' });
+        }
+        u.lastLoginAt = new Date().toISOString();
+        db.session.customer = { userId: u.id, at: Date.now() };
+        return { user: u, isNew, needsProfile: !u.phone };
+      });
+    },
+    updatePhone(userId, phone) {
+      return tx(() => {
+        const u = actorOf(userId); const digits = String(phone || '').replace(/\D/g, '');
+        if (!/^0\d{8,10}$/.test(digits)) fail('VALIDATION_001', 'Please enter a valid Malaysian phone number (e.g. 012-345 6789).', 422);
+        const before = u.phone; u.phone = String(phone).trim(); u.updatedAt = new Date().toISOString();
+        audit(u.id, 'UPDATE_PROFILE', 'user', u.id, { phone: before || null }, { phone: u.phone });
+      });
+    },
+    staffLogin(role, email, password) {
+      const res = tx(() => {
+        email = String(email || '').trim().toLowerCase();
+        if (!email || !password) fail('VALIDATION_001', 'Please enter your email and password.', 422);
+        const u = db.users.find(x => x.email.toLowerCase() === email && x.role === role);
+        if (!u) fail('AUTH_002', 'Invalid email or password.', 401);
+        if (u.lockedUntil && u.lockedUntil > Date.now()) fail('AUTH_005', 'Too many failed attempts. Account locked — try again in ' + Math.ceil((u.lockedUntil - Date.now()) / 60000) + ' minutes.', 429);
+        if (u.status !== 'active') fail('AUTH_003', 'This account is disabled. Contact the system administrator.', 403);
+        if (u.password !== password) {
+          u.failed = (u.failed || 0) + 1;
+          if (db.settings.failedLoginProtection && u.failed >= 3) { u.lockedUntil = Date.now() + 15 * 60000; u.failed = 0; audit(u.id, 'ACCOUNT_LOCKED', 'user', u.id, null, { minutes: 15 }); persist(db); throw new AppError('AUTH_005', 'Too many failed attempts. Account locked for 15 minutes.', 429); }
+          persist(db);
+          throw new AppError('AUTH_002', 'Invalid email or password.' + (db.settings.failedLoginProtection ? ' ' + (3 - u.failed) + (3 - u.failed === 1 ? ' attempt' : ' attempts') + ' remaining.' : ''), 401);
+        }
+        u.failed = 0; u.lockedUntil = 0; u.lastLoginAt = new Date().toISOString();
+        db.session[role] = { userId: u.id, at: Date.now() };
+        audit(u.id, 'LOGIN', 'user', u.id);
+        return { user: u };
+      });
+      if (!res.ok) { // keep failed-attempt counters that were persisted before the throw
+        try { const d = JSON.parse(localStorage.getItem(KEY)); const e = String(email || '').trim().toLowerCase(); const fu = d.users.find(x => x.email.toLowerCase() === e && x.role === role); const mu = db.users.find(x => fu && x.id === fu.id); if (fu && mu) { mu.failed = fu.failed; mu.lockedUntil = fu.lockedUntil; db.audit = d.audit; db.seq = d.seq; persist(db); } } catch (e) { }
+      }
+      return res;
+    },
+
+    createBooking(o) {
+      return tx(() => {
+        const s = db.settings; const source = o.source || 'ONLINE'; let cust = null, guest;
+        if (source === 'ONLINE') {
+          cust = actorOf(o.customerId); if (cust.role !== 'customer') fail('PERMISSION_001', 'Only customers can create online bookings.', 403);
+          if (!s.allowOnline) fail('BOOKING_005', 'Online booking is currently disabled.', 409);
+          if (!cust.phone) fail('BOOKING_001', 'Please add your phone number before booking.', 422);
+          guest = { name: cust.name, email: cust.email, phone: cust.phone };
+        } else {
+          const a = actorOf(o.actorId); if (!isStaff(a)) fail('PERMISSION_001', 'Forbidden.', 403);
+          if (!s.allowWalkIn) fail('BOOKING_005', 'Walk-in booking is currently disabled.', 409);
+          guest = o.guest || {};
+          if (!String(guest.name || '').trim()) fail('VALIDATION_001', 'Guest name is required.', 422);
+          if (!/^0\d{8,10}$/.test(String(guest.phone || '').replace(/\D/g, ''))) fail('VALIDATION_001', 'A valid guest phone number is required.', 422);
+          if (guest.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guest.email)) fail('VALIDATION_001', 'Guest email is not valid.', 422);
+        }
+        const t = type(o.typeId); if (!t || !t.active) fail('ROOM_001', 'Room type not found.', 404);
+        const v = validateStay(o.checkIn, o.checkOut, o.guests); if (v) fail('VALIDATION_001', v, 422);
+        if (Number(o.guests) > t.capacity) fail('BOOKING_002', t.name + ' fits up to ' + t.capacity + (t.capacity > 1 ? ' guests.' : ' guest.'), 422);
+        const c = candidates(t.id, o.checkIn, o.checkOut);
+        if (!c.length) fail('BOOKING_003', 'This room is no longer available. Please select another room.', 409);
+        const r = c[0]; const n = nightsBetween(o.checkIn, o.checkOut); const num = nextSeq('booking');
+        const b = {
+          id: 'b' + num, ref: refOf(num), customerId: cust ? cust.id : null, roomId: r.id, typeId: t.id, source, checkIn: o.checkIn, checkOut: o.checkOut, guests: Number(o.guests),
+          roomPrice: t.price, nights: n, serviceFee: s.serviceFee, subtotal: t.price * n, total: t.price * n + s.serviceFee, status: 'CONFIRMED',
+          guestName: String(guest.name).trim(), guestEmail: guest.email || '', guestPhone: guest.phone || '', payment: o.payment || 'Pay at Hotel',
+          createdAt: new Date().toISOString(), createdBy: cust ? cust.id : o.actorId, checkedInAt: null, checkedOutAt: null, cancelledAt: null, cancelledBy: null, cancellationReason: null
+        };
+        db.bookings.push(b);
+        if (r.status === 'AVAILABLE') r.status = 'RESERVED';
+        if (cust) notify(cust.id, 'BOOKING_CONFIRMED', 'Booking ' + b.ref + ' confirmed', 'Room ' + r.number + ' is reserved for ' + fmtShort(b.checkIn) + ' – ' + fmtShort(b.checkOut) + '.');
+        notify('managers', 'NEW_BOOKING', 'New ' + (source === 'WALK_IN' ? 'walk-in' : 'online') + ' booking ' + b.ref, b.guestName + ' · ' + t.name + ' · Room ' + r.number);
+        audit(cust ? cust.id : o.actorId, 'BOOKING_CREATED', 'booking', b.ref, null, { status: 'CONFIRMED', room: r.number, source, total: b.total });
+        return { booking: b };
+      });
+    },
+    cancelBooking(ref, actorId, reason) {
+      return tx(() => {
+        const a = actorOf(actorId); const b = booking(ref); if (!b) fail('BOOKING_004', 'Booking not found.', 404);
+        if (a.role === 'customer') {
+          if (b.customerId !== a.id) fail('PERMISSION_001', 'You do not have access to this booking.', 403);
+          if (!db.settings.allowCancel) fail('BOOKING_006', 'Online cancellation is currently disabled. Please contact the hotel.', 409);
+        }
+        if (b.status === 'CANCELLED') fail('BOOKING_007', 'This booking has already been cancelled.', 409);
+        if (b.status !== 'CONFIRMED') fail('BOOKING_008', 'Only confirmed bookings can be cancelled. This booking is ' + b.status.replace('_', '-').toLowerCase() + '.', 409);
+        if (a.role === 'customer' && today() >= b.checkIn) fail('BOOKING_009', 'Bookings can only be cancelled before the check-in date.', 409);
+        if (a.role === 'admin' && !String(reason || '').trim()) fail('VALIDATION_001', 'A reason is required for administrative cancellation.', 422);
+        b.status = 'CANCELLED'; b.cancelledAt = new Date().toISOString(); b.cancelledBy = a.id;
+        b.cancellationReason = String(reason || '').trim() || (a.role === 'customer' ? 'Cancelled by customer' : 'Cancelled by hotel');
+        releaseRoom(b.roomId);
+        if (b.customerId) notify(b.customerId, 'BOOKING_CANCELLED', 'Booking ' + b.ref + ' cancelled', a.role === 'customer' ? 'Your booking has been cancelled.' : 'Your booking was cancelled by the hotel. Reason: ' + b.cancellationReason);
+        if (a.role === 'admin') notify('managers', 'ADMIN_BOOKING_OVERRIDE', 'Booking ' + b.ref + ' cancelled by Admin', b.cancellationReason);
+        if (a.role === 'hotel_manager') notify('admins', 'BOOKING_CANCELLED', 'Booking ' + b.ref + ' cancelled by Manager', b.cancellationReason);
+        audit(a.id, a.role === 'admin' ? 'ADMIN_BOOKING_OVERRIDE' : 'BOOKING_CANCELLED', 'booking', b.ref, { status: 'CONFIRMED' }, { status: 'CANCELLED' }, b.cancellationReason);
+      });
+    },
+    checkIn(ref, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (!isStaff(a)) fail('PERMISSION_001', 'Forbidden.', 403);
+        const b = booking(ref); if (!b) fail('BOOKING_004', 'Booking not found.', 404);
+        const r = room(b.roomId);
+        if (b.status !== 'CONFIRMED') fail('BOOKING_010', 'This booking cannot be checked in. Status is ' + b.status.replace('_', '-') + '.', 409);
+        if (today() < b.checkIn) fail('BOOKING_010', 'This booking cannot be checked in yet. Check-in opens on ' + fmtDate(b.checkIn) + '.', 409);
+        if (!['RESERVED', 'AVAILABLE'].includes(r.status)) fail('ROOM_002', 'This booking cannot be checked in. Room ' + r.number + ' is ' + r.status.replace(/_/g, ' ').toLowerCase() + '.', 409);
+        b.status = 'CHECKED_IN'; b.checkedInAt = new Date().toISOString(); r.status = 'OCCUPIED';
+        if (b.customerId) notify(b.customerId, 'BOOKING_CHECKED_IN', 'Checked in — Room ' + r.number, 'Your booking ' + b.ref + ' has been checked in. Enjoy your stay.');
+        audit(a.id, 'BOOKING_CHECKED_IN', 'booking', b.ref, { status: 'CONFIRMED', room: 'RESERVED' }, { status: 'CHECKED_IN', room: 'OCCUPIED' });
+      });
+    },
+    checkOut(ref, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (!isStaff(a)) fail('PERMISSION_001', 'Forbidden.', 403);
+        const b = booking(ref); if (!b) fail('BOOKING_004', 'Booking not found.', 404);
+        const r = room(b.roomId);
+        if (b.status !== 'CHECKED_IN') fail('BOOKING_011', 'Only checked-in bookings can be checked out.', 409);
+        b.status = 'COMPLETED'; b.checkedOutAt = new Date().toISOString(); r.status = 'CLEANING';
+        db.housekeeping.unshift({ id: 'HK-' + String(nextSeq('hk')).padStart(4, '0'), roomId: r.id, bookingId: b.id, status: 'DIRTY', createdAt: new Date().toISOString(), completedAt: null, assignedTo: null });
+        if (b.customerId) notify(b.customerId, 'BOOKING_COMPLETED', 'Stay completed', 'Thanks for staying with us. Booking ' + b.ref + ' is complete.');
+        notify('managers', 'HOUSEKEEPING_REQUIRED', 'Room ' + r.number + ' requires cleaning', 'Guest checked out of ' + b.ref + '.');
+        audit(a.id, 'BOOKING_CHECKED_OUT', 'booking', b.ref, { status: 'CHECKED_IN', room: 'OCCUPIED' }, { status: 'COMPLETED', room: 'CLEANING' });
+      });
+    },
+    advanceHousekeeping(taskId, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (!isStaff(a)) fail('PERMISSION_001', 'Forbidden.', 403);
+        const t = db.housekeeping.find(x => x.id === taskId); if (!t) fail('ROOM_003', 'Task not found.', 404);
+        const r = room(t.roomId);
+        if (t.status === 'DIRTY') { t.status = 'CLEANING'; t.assignedTo = a.id; audit(a.id, 'HOUSEKEEPING_STARTED', 'room', r.number, { housekeeping: 'DIRTY' }, { housekeeping: 'CLEANING' }); }
+        else if (t.status === 'CLEANING') {
+          t.status = 'COMPLETED'; t.completedAt = new Date().toISOString();
+          if (r.status === 'CLEANING') r.status = db.bookings.some(b => b.roomId === r.id && b.status === 'CONFIRMED') ? 'RESERVED' : 'AVAILABLE';
+          audit(a.id, 'ROOM_MARKED_AVAILABLE', 'room', r.number, { status: 'CLEANING' }, { status: r.status });
+        } else fail('ROOM_003', 'This task is already completed.', 409);
+      });
+    },
+    markClean(roomId, actorId) {
+      const t = db.housekeeping.find(x => x.roomId === Number(roomId) && x.status !== 'COMPLETED');
+      if (!t) return tx(() => {
+        const a = actorOf(actorId); const r = room(roomId); if (r.status !== 'CLEANING') fail('ROOM_002', 'Room is not in cleaning.', 409);
+        r.status = 'AVAILABLE'; audit(a.id, 'ROOM_MARKED_AVAILABLE', 'room', r.number, { status: 'CLEANING' }, { status: 'AVAILABLE' });
+      });
+      if (t.status === 'DIRTY') { const r1 = api.advanceHousekeeping(t.id, actorId); if (!r1.ok) return r1; }
+      return api.advanceHousekeeping(t.id, actorId);
+    },
+    reportMaintenance(o, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (!isStaff(a)) fail('PERMISSION_001', 'Forbidden.', 403);
+        const r = roomByNo(o.roomNumber); if (!r) fail('ROOM_001', 'Room ' + (o.roomNumber || '') + ' does not exist.', 404);
+        if (!o.issueType) fail('VALIDATION_001', 'Please choose an issue type.', 422);
+        if (!String(o.description || '').trim()) fail('VALIDATION_001', 'Please describe the issue.', 422);
+        if (r.status === 'OCCUPIED' || r.status === 'RESERVED') fail('ROOM_002', 'Room ' + r.number + ' is ' + r.status.toLowerCase() + '. Reassign or check out the guest first.', 409);
+        const before = r.status; const id = 'REQ-' + String(nextSeq('req')).padStart(4, '0');
+        db.maintenance.unshift({ id, roomId: r.id, reportedBy: a.id, issueType: o.issueType, description: String(o.description).trim(), priority: o.priority || 'MEDIUM', status: 'OPEN', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), resolvedAt: null });
+        r.status = 'MAINTENANCE';
+        db.housekeeping.forEach(t => { if (t.roomId === r.id && t.status !== 'COMPLETED') { t.status = 'COMPLETED'; t.completedAt = new Date().toISOString(); } });
+        notify('managers', 'MAINTENANCE_REPORTED', 'Room ' + r.number + ' has a new maintenance request', id + ' · ' + o.issueType + ' · ' + (o.priority || 'MEDIUM'));
+        notify('admins', 'MAINTENANCE_ALERT', 'Room ' + r.number + ' entered maintenance', id + ' reported by ' + a.name + '.');
+        audit(a.id, 'MAINTENANCE_REPORTED', 'maintenance_request', id, { room: before }, { room: 'MAINTENANCE', priority: o.priority || 'MEDIUM' });
+        return { id };
+      });
+    },
+    advanceMaintenance(id, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (!isStaff(a)) fail('PERMISSION_001', 'Forbidden.', 403);
+        const m = db.maintenance.find(x => x.id === id); if (!m) fail('ROOM_003', 'Request not found.', 404);
+        const before = m.status;
+        if (m.status === 'OPEN') m.status = 'IN_PROGRESS';
+        else if (m.status === 'IN_PROGRESS') {
+          m.status = 'RESOLVED'; m.resolvedAt = new Date().toISOString();
+          const r = room(m.roomId);
+          if (r.status === 'MAINTENANCE' && !db.maintenance.some(x => x.roomId === r.id && x.status !== 'RESOLVED')) r.status = 'AVAILABLE';
+        } else fail('ROOM_003', 'Request already resolved.', 409);
+        m.updatedAt = new Date().toISOString();
+        audit(a.id, 'MAINTENANCE_' + m.status, 'maintenance_request', m.id, { status: before }, { status: m.status });
+      });
+    },
+    setRoomStatus(roomId, status, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (!isStaff(a)) fail('PERMISSION_001', 'Forbidden.', 403);
+        const r = room(roomId); if (!r) fail('ROOM_001', 'Room not found.', 404);
+        const allowed = { AVAILABLE: ['OUT_OF_SERVICE'], OUT_OF_SERVICE: ['AVAILABLE'] };
+        if (!(allowed[r.status] || []).includes(status)) fail('ROOM_002', 'Room ' + r.number + ' cannot change from ' + r.status.replace(/_/g, ' ') + ' to ' + status.replace(/_/g, ' ') + ' directly.', 409);
+        if (status === 'OUT_OF_SERVICE' && db.bookings.some(b => b.roomId === r.id && b.status === 'CONFIRMED')) fail('ROOM_002', 'Room ' + r.number + ' has upcoming bookings. Reassign them first.', 409);
+        const before = r.status; r.status = status;
+        audit(a.id, 'ROOM_STATUS_CHANGED', 'room', r.number, { status: before }, { status });
+      });
+    },
+    reassignRoom(ref, roomId, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (!isStaff(a)) fail('PERMISSION_001', 'Forbidden.', 403);
+        const b = booking(ref); if (!b) fail('BOOKING_004', 'Booking not found.', 404);
+        if (b.status !== 'CONFIRMED') fail('BOOKING_012', 'Rooms can only be reassigned before check-in.', 409);
+        const to = room(roomId); if (!to || to.typeId !== b.typeId) fail('ROOM_001', 'Choose a room of the same type.', 422);
+        if (to.id === b.roomId) fail('ROOM_002', 'Booking is already assigned to Room ' + to.number + '.', 409);
+        if (to.status !== 'AVAILABLE' || !roomFree(to.id, b.checkIn, b.checkOut, b.id)) fail('ROOM_002', 'Room ' + to.number + ' is not available for these dates.', 409);
+        const from = room(b.roomId); b.roomId = to.id; to.status = 'RESERVED'; releaseRoom(from.id);
+        audit(a.id, 'BOOKING_ROOM_REASSIGNED', 'booking', b.ref, { room: from.number }, { room: to.number });
+      });
+    },
+
+    setUserStatus(userId, status, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (a.role !== 'admin') fail('PERMISSION_001', 'Forbidden.', 403);
+        const u = user(userId); if (!u) fail('USER_001', 'User not found.', 404);
+        if (u.id === a.id) fail('USER_002', 'You cannot disable your own account.', 403);
+        if (u.primary) fail('USER_003', 'The primary admin account cannot be disabled.', 403);
+        const before = u.status; u.status = status; if (status === 'active') { u.failed = 0; u.lockedUntil = 0; }
+        if (status !== 'active') Object.keys(db.session).forEach(k => { if (db.session[k] && db.session[k].userId === u.id) db.session[k] = null; });
+        audit(a.id, status === 'active' ? 'USER_ENABLED' : 'USER_DISABLED', 'user', u.email, { status: before }, { status });
+      });
+    },
+    unlockUser(userId, actorId) { return tx(() => { const a = actorOf(actorId); if (a.role !== 'admin') fail('PERMISSION_001', 'Forbidden.', 403); const u = user(userId); u.failed = 0; u.lockedUntil = 0; audit(a.id, 'ACCOUNT_UNLOCKED', 'user', u.email); }); },
+    createManager(o, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (a.role !== 'admin') fail('PERMISSION_001', 'Forbidden.', 403);
+        const name = String(o.name || '').trim(), email = String(o.email || '').trim().toLowerCase();
+        if (name.length < 2) fail('VALIDATION_001', 'Full name is required.', 422);
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail('VALIDATION_001', 'Enter a valid email address.', 422);
+        if (db.users.some(u => u.email.toLowerCase() === email)) fail('USER_004', 'An account with this email already exists.', 409);
+        if (String(o.password || '').length < 8) fail('VALIDATION_001', 'Temporary password must be at least 8 characters.', 422);
+        if (o.phone && !/^0\d{8,10}$/.test(String(o.phone).replace(/\D/g, ''))) fail('VALIDATION_001', 'Enter a valid phone number.', 422);
+        const u = { id: 'u-mgr' + Date.now().toString(36), role: 'hotel_manager', name, email, password: o.password, phone: o.phone || '', status: 'active', authProvider: 'password', createdAt: new Date().toISOString(), lastLoginAt: null, failed: 0, lockedUntil: 0, mustChangePassword: true };
+        db.users.push(u);
+        notify('admins', 'NEW_MANAGER_CREATED', 'New Hotel Manager created', name + ' (' + email + ')');
+        audit(a.id, 'CREATE_MANAGER', 'user', email, null, { role: 'hotel_manager', name });
+        return { user: u };
+      });
+    },
+    setPrice(typeId, price, actorId, reason) {
+      return tx(() => {
+        const a = actorOf(actorId); if (a.role !== 'admin') fail('PERMISSION_001', 'Forbidden.', 403);
+        const t = type(typeId); if (!t) fail('ROOM_001', 'Room type not found.', 404);
+        const p = Number(price); if (!isFinite(p) || p < 1 || p > 5000 || Math.round(p) !== p) fail('VALIDATION_001', 'Price must be a whole number between RM1 and RM5000.', 422);
+        if (p === t.price) fail('VALIDATION_001', 'Price is unchanged.', 422);
+        const before = t.price; t.price = p; t.updatedAt = new Date().toISOString();
+        notify('admins', 'PRICE_CHANGED', t.name + ' price updated', rm(before) + ' → ' + rm(p) + ' per night');
+        audit(a.id, 'UPDATE_ROOM_TYPE_PRICE', 'room_type', t.name, { price: before }, { price: p }, reason || null);
+      });
+    },
+    updateType(typeId, patch, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (a.role !== 'admin') fail('PERMISSION_001', 'Forbidden.', 403);
+        const t = type(typeId); const before = {}, after = {};
+        if ('description' in patch) { const d = String(patch.description).trim(); if (d.length < 10) fail('VALIDATION_001', 'Description must be at least 10 characters.', 422); if (d !== t.description) { before.description = t.description; after.description = d; t.description = d; } }
+        if ('active' in patch && patch.active !== t.active) {
+          if (!patch.active && db.bookings.some(b => b.typeId === t.id && ACTIVE(b.status))) fail('ROOM_002', 'This room type has active bookings.', 409);
+          before.active = t.active; after.active = patch.active; t.active = patch.active;
+        }
+        if (!Object.keys(after).length) fail('VALIDATION_001', 'No changes to save.', 422);
+        audit(a.id, 'UPDATE_ROOM_TYPE', 'room_type', t.name, before, after);
+      });
+    },
+    updateSettings(patch, actorId) {
+      return tx(() => {
+        const a = actorOf(actorId); if (a.role !== 'admin') fail('PERMISSION_001', 'Forbidden.', 403);
+        const s = db.settings; const before = {}, after = {};
+        if ('hotelName' in patch && !String(patch.hotelName).trim()) fail('VALIDATION_001', 'Hotel name is required.', 422);
+        if ('email' in patch && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(patch.email)) fail('VALIDATION_001', 'Enter a valid hotel email.', 422);
+        if ('serviceFee' in patch) { const f = Number(patch.serviceFee); if (!isFinite(f) || f < 0 || f > 500) fail('VALIDATION_001', 'Service fee must be between RM0 and RM500.', 422); patch.serviceFee = f; }
+        ['adminTimeout', 'managerTimeout'].forEach(k => { if (k in patch) { const v = Number(patch[k]); if (!Number.isInteger(v) || v < 5 || v > 240) fail('VALIDATION_001', 'Session timeout must be 5–240 minutes.', 422); patch[k] = v; } });
+        Object.keys(patch).forEach(k => { if (s[k] !== patch[k]) { before[k] = s[k]; after[k] = patch[k]; s[k] = patch[k]; } });
+        if (!Object.keys(after).length) fail('VALIDATION_001', 'No changes to save.', 422);
+        audit(a.id, 'UPDATE_SETTINGS', 'system_settings', '1', before, after);
+      });
+    },
+    sendContact(o) {
+      return tx(() => {
+        const e = {};
+        if (!String(o.name || '').trim()) e.name = 'Name is required';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(o.email || '').trim())) e.email = 'Enter a valid email address';
+        if (!String(o.subject || '').trim()) e.subject = 'Subject is required';
+        if (!String(o.message || '').trim()) e.message = 'Message is required';
+        if (Object.keys(e).length) { const err = new AppError('VALIDATION_001', 'Please fix the highlighted fields.', 422); err.fields = e; throw err; }
+        db.messages.unshift(Object.assign({ id: 'MSG-' + nextSeq('msg'), at: new Date().toISOString() }, o));
+      });
+    }
+  };
+  window.AureliaStore = api;
+})();

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Business Reports — AURELIA STAY Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="admin-app.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,select,textarea,button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Business Reports" style="min-height:100vh;background:#F2F2F2;display:flex;flex-wrap:wrap;align-items:stretch">
+<dc-import name="AdminSidebar" active="reports" hint-size="260px,100vh"></dc-import>
+<div style="flex:1 1 0;min-width:min(100%,320px);display:flex;flex-direction:column">
+<header style="height:64px;border-bottom:1px solid rgba(78,22,23,.10);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 clamp(16px,3vw,40px)"><span style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">{{ todayLabel }}</span><a href="Notifications.dc.html" style="display:flex;align-items:center;min-height:44px;gap:8px;color:#4E1617;text-decoration:none;font-size:14px;font-weight:500">Notifications<sc-if value="{{ unread }}"><span style="min-width:22px;height:22px;padding:0 7px;background:#4E1617;color:#F1D7A5;font:600 11px 'Outfit';display:flex;align-items:center;justify-content:center;border-radius:11px">{{ unread }}</span></sc-if></a></header>
+<main style="flex:1;padding:clamp(20px,3vw,40px) clamp(16px,3vw,40px) 64px;max-width:1320px;width:100%">
+<sc-if value="{{ flash.msg }}"><div role="status" style="margin-bottom:20px;padding:14px 18px;background:{{ flash.bg }};color:{{ flash.fg }};font-weight:600;font-size:14px;border-radius:14px;display:flex;justify-content:space-between;gap:12px"><span>{{ flash.msg }}</span><button onClick="{{ clearFlash }}" aria-label="Dismiss" style="background:transparent;border:none;color:inherit;cursor:pointer;font-size:16px">×</button></div></sc-if>
+<sc-if value="{{ loading }}"><div role="status" style="padding:60px 0;color:#6A4744">Loading…</div></sc-if>
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<section style="display:flex;flex-direction:column;gap:24px"><h1 data-reveal="up" style="margin:0;font:700 clamp(30px,4vw,46px) 'Comfortaa';line-height:1.05">Business Reports</h1><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px"><sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4"><div data-reveal="up" data-reveal-delay="{{ k.delay }}" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:20px"><div style="font-size:13px;color:#6A4744">{{ k.k }}</div><div style="font:700 30px 'Comfortaa';margin-top:4px">{{ k.n }}</div></div></sc-for></div>
+<div data-reveal="up" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:24px"><h2 style="margin:0 0 20px;font:700 19px 'Comfortaa'">Revenue · last 6 months</h2><div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;height:220px;align-items:end"><sc-for list="{{ bars }}" as="b" hint-placeholder-count="6"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end"><span style="font:500 11px 'JetBrains Mono'">{{ b.value }}</span><div data-reveal="up" style="width:100%;max-width:64px;height:{{ b.h }};background:{{ b.bg }};border-radius:10px 10px 4px 4px"></div><span style="font-size:13px;color:#6A4744">{{ b.label }}</span></div></sc-for></div></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px"><div data-reveal="up" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:24px"><h2 style="margin:0 0 14px;font:700 19px 'Comfortaa'">By Room Type</h2><sc-for list="{{ byType }}" as="t"><div style="padding:10px 0;border-bottom:1px solid rgba(78,22,23,.08)"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px"><span style="font-weight:600">{{ t.k }}</span><span>{{ t.n }} · {{ t.r }}</span></div><div style="height:8px;background:#EEEEEE;border-radius:4px;overflow:hidden"><div style="width:{{ t.w }};height:100%;background:#174C38"></div></div></div></sc-for></div>
+<div data-reveal="up" data-reveal-delay="100" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;padding:24px"><h2 style="margin:0 0 14px;font:700 19px 'Comfortaa'">Booking Source</h2><sc-for list="{{ source }}" as="s"><div style="padding:10px 0;border-bottom:1px solid rgba(78,22,23,.08)"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px"><span style="font-weight:600">{{ s.k }}</span><span>{{ s.n }} · {{ s.w }}</span></div><div style="height:8px;background:#EEEEEE;border-radius:4px;overflow:hidden"><div style="width:{{ s.w }};height:100%;background:#4E1617"></div></div></div></sc-for></div></div></section>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {};
+  componentDidMount() { const w = () => { if (!window.AureliaAdmin) return (this._w = setTimeout(w, 30)); this.setState(window.AureliaAdmin.state(), () => window.AureliaAdmin.mount(this)); }; w(); }
+  componentWillUnmount() { clearTimeout(this._w); window.AureliaAdmin && window.AureliaAdmin.unmount(this); }
+  renderVals() { if (!(window.AureliaAdmin && this.state.cm)) return { loading: true, flash: {}, me: {} }; const v = window.AureliaAdmin.vals(this, 'reports'); return v; }
+}
+</script>
+</body>
+</html>

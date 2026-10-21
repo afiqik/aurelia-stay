@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Facilities — AURELIA STAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="../shared/aurelia-i18n.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+</style>
+</helmet>
+<div data-screen-label="Facilities" style="min-height:100vh;background:#F2F2F2">
+<dc-import name="SiteHeader" active="facilities" hint-size="100%,74px"></dc-import>
+<main>
+  <section style="max-width:1280px;margin:0 auto;padding:clamp(40px,6vw,72px) 24px 48px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:32px;align-items:end">
+    <div>
+      <div data-reveal="fade" style="font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase;color:#6A4744">Facilities</div>
+      <h1 data-reveal="up" style="margin:14px 0 0;font:700 clamp(40px,6vw,80px) 'Comfortaa';line-height:1">What's included.</h1>
+    </div>
+    <p data-reveal="up" data-reveal-delay="120" style="margin:0;font-size:18px;line-height:1.6;color:#6A4744;max-width:460px">Everything a short stay needs — nothing we don't actually have. All facilities are included in your room rate.</p>
+  </section>
+  <section style="max-width:1280px;margin:0 auto;padding:0 24px 96px;display:flex;flex-direction:column;gap:20px">
+    <sc-for list="{{ items }}" as="x" hint-placeholder-count="6">
+      <article data-reveal="up" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));background:{{ x.bg }};color:{{ x.fg }};border-radius:28px;overflow:hidden">
+        <div style="padding:clamp(26px,4vw,48px);display:flex;flex-direction:column;gap:16px;justify-content:space-between;order:{{ x.order }}">
+          <span style="font:500 13px 'JetBrains Mono'">{{ x.num }}</span>
+          <div><h2 style="margin:0 0 12px;font:700 clamp(28px,3.4vw,42px) 'Comfortaa'">{{ x.name }}</h2><p style="margin:0;font-size:17px;line-height:1.6;max-width:440px">{{ x.long }}</p></div>
+        </div>
+        <div style="min-height:280px;overflow:hidden;background:#CBCBCB"><img data-parallax="0.07" data-parallax-scale="1.15" src="{{ x.src }}" alt="{{ x.name }}" loading="lazy" style="width:100%;height:100%;min-height:280px;object-fit:cover;display:block"></div>
+      </article>
+    </sc-for>
+  </section>
+</main>
+<dc-import name="SiteFooter" hint-size="100%,520px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() { const w = () => window.AureliaUI ? this.forceUpdate() : (this._t = setTimeout(w, 30)); w(); }
+  componentWillUnmount() { clearTimeout(this._t); }
+  renderVals() {
+    const U = window.AureliaUI;
+    const F = [
+      ['Free Wi-Fi', 'Free wireless internet available throughout the hotel — rooms, corridors and reception.', 'room2'],
+      ['Parking', 'On-site parking for hotel guests, first come first served. No extra charge.', 'parking'],
+      ['Air Conditioning', 'Every room has its own air conditioning with an easy remote, so you can set the room the way you like.', 'double'],
+      ['Private Bathroom', 'Each room has its own clean bathroom with hot shower, towels and basic toiletries.', 'bath'],
+      ['Reception', 'Front desk assistance for check-in, check-out, directions and anything you need during your stay.', 'exterior'],
+      ['CCTV & 24/7 Support', 'CCTV covers common areas and our team is available around the clock for hotel guests.', 'garage']
+    ];
+    const tones = [['#FFFFFF', '#4E1617'], ['#174C38', '#F1D7A5'], ['#E4E4E4', '#4E1617'], ['#4E1617', '#F1D7A5']];
+    return { items: F.map(([name, long, key], i) => ({ name, long, num: '0' + (i + 1) + ' / 06', src: U ? U.img(key, 1100) : '', bg: tones[i % 4][0], fg: tones[i % 4][1], order: i % 2 ? 2 : 0 })) };
+  }
+}
+</script>
+</body>
+</html>

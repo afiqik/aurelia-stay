@@ -1,0 +1,19 @@
+{
+  "name": "aurelia-stay",
+  "private": true,
+  "version": "1.0.0",
+  "description": "AURELIA STAY — Budget Hotel Management & Booking System (Firestore + Realtime Database + Static Client)",
+  "type": "module",
+  "scripts": {
+    "start": "npm run emulators",
+    "emulators": "node scripts/start-emulators.js",
+    "test": "npm run test:rules",
+    "test:rules": "node scripts/run-rules-tests.js",
+    "test:store": "node scripts/run-store-tests.js",
+    "test:all": "npm run test:rules && npm run test:store"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "firebase": "^12.0.0"
+  }
+}

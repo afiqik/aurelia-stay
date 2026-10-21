@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Firebase & Emulators logs & cache
+.firebase/
+*-debug.log
+firebase-debug.log
+firestore-debug.log
+database-debug.log
+ui-debug.log
+*.log
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporary test profiles & caches
+/tmp/
+chrome-test-*
+
+# --- stray junk flagged pre-publish ---
+firebase.json.bak
+.thumbnail
+design/uploads/
+*.bak

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Room Inventory — AURELIA STAY Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="manager-app.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+input,select,textarea,button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="Room Inventory" style="min-height:100vh;background:#F2F2F2;display:flex;flex-wrap:wrap;align-items:stretch">
+<dc-import name="ManagerSidebar" active="rooms" hint-size="260px,100vh"></dc-import>
+<div style="flex:1 1 0;min-width:min(100%,320px);display:flex;flex-direction:column">
+<header style="height:64px;border-bottom:1px solid rgba(78,22,23,.10);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 clamp(16px,3vw,40px)"><span style="font:600 12px 'Outfit';letter-spacing:.14em;text-transform:uppercase;color:#6A4744">{{ todayLabel }}</span><a href="Notifications.dc.html" style="display:flex;align-items:center;min-height:44px;gap:8px;color:#4E1617;text-decoration:none;font-size:14px;font-weight:500">Notifications<sc-if value="{{ unread }}"><span style="min-width:22px;height:22px;padding:0 7px;background:#4E1617;color:#F1D7A5;font:600 11px 'Outfit';display:flex;align-items:center;justify-content:center;border-radius:11px">{{ unread }}</span></sc-if></a></header>
+<main style="flex:1;padding:clamp(20px,3vw,40px) clamp(16px,3vw,40px) 64px;max-width:1320px;width:100%">
+<sc-if value="{{ flash.msg }}"><div role="status" style="margin-bottom:20px;padding:14px 18px;background:{{ flash.bg }};color:{{ flash.fg }};font-weight:600;font-size:14px;border-radius:14px;display:flex;justify-content:space-between;gap:12px"><span>{{ flash.msg }}</span><button onClick="{{ clearFlash }}" aria-label="Dismiss" style="background:transparent;border:none;color:inherit;cursor:pointer;font-size:16px">×</button></div></sc-if>
+<sc-if value="{{ loading }}"><div role="status" style="padding:60px 0;color:#6A4744">Loading…</div></sc-if>
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<section style="display:flex;flex-direction:column;gap:20px"><h1 data-reveal="up" style="margin:0;font:700 clamp(30px,4vw,46px) 'Comfortaa';line-height:1.05">Room Inventory</h1><div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center"><input type="search" aria-label="Search room number" placeholder="Room number…" value="{{ roomQ }}" onChange="{{ onRoomQ }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%;width:200px;background:#FFFFFF"><div role="tablist" style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ roomFilters }}" as="c"><button role="tab" aria-selected="{{ c.active }}" onClick="{{ c.onClick }}" style="height:38px;padding:0 16px;border:1px solid #174C38;background:{{ c.bg }};color:{{ c.fg }};font-weight:600;font-size:13px;cursor:pointer;border-radius:999px;transition:background .2s">{{ c.label }}</button></sc-for></div></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px"><sc-for list="{{ tiles }}" as="r" hint-placeholder-count="20"><a href="{{ r.href }}" data-reveal="up" data-reveal-delay="{{ r.delay }}" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.10);border-radius:22px;overflow:hidden;text-decoration:none;color:#4E1617;display:flex;flex-direction:column;transition:box-shadow .3s,translate .3s" style-hover="box-shadow:0 16px 32px rgba(23,76,56,.12);translate:0 -3px;color:#4E1617"><div style="height:96px;overflow:hidden;background:#CBCBCB;position:relative"><img src="{{ r.img }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"><span style="position:absolute;top:10px;right:10px;padding:4px 10px;font:600 11px 'Outfit';letter-spacing:.08em;text-transform:uppercase;border-radius:999px;white-space:nowrap;background:{{ r.chip.bg }};color:{{ r.chip.fg }}">{{ r.chip.label }}</span></div><div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span style="font:700 26px 'Comfortaa'">{{ r.number }}</span><span style="font-size:12px;color:#6A4744;text-align:right">{{ r.typeName }}<br>Floor {{ r.floor }}</span></div></a></sc-for></div><sc-if value="{{ empty }}"><div style="padding:40px;text-align:center;color:#6A4744">No rooms match.</div></sc-if></section>
+</sc-if>
+</main>
+</div>
+</div>
+<sc-if value="{{ confirm }}"><div role="dialog" aria-modal="true" aria-labelledby="confirm-title" onClick="{{ closeConfirm }}" style="position:fixed;inset:0;z-index:90;background:rgba(10,30,22,.55);display:flex;align-items:center;justify-content:center;padding:24px"><div onClick="{{ stop }}" style="width:min(460px,100%);background:#FFFFFF;padding:30px;border-radius:24px;display:flex;flex-direction:column;gap:16px"><h2 id="confirm-title" style="margin:0;font:700 24px 'Comfortaa'">{{ confirm.title }}</h2><dl style="margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 18px;font-size:15px"><sc-for list="{{ confirm.rows }}" as="r"><dt style="color:#6A4744">{{ r.k }}</dt><dd style="margin:0;font-weight:600">{{ r.v }}</dd></sc-for></dl><sc-if value="{{ confirm.needsReason }}"><label style="display:flex;flex-direction:column;gap:8px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase">Reason<input value="{{ confirmReason }}" onChange="{{ onConfirmReason }}" style="height:48px;padding:0 12px;border:1px solid rgba(78,22,23,.24);background:#F7F7F7;color:#4E1617;font:400 15px 'Outfit';border-radius:12px;width:100%"></label></sc-if><sc-if value="{{ confirmErr }}"><div role="alert" style="padding:12px;background:#EBD9D8;font-size:14px;font-weight:500;border-radius:12px">{{ confirmErr }}</div></sc-if><div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap"><button onClick="{{ closeConfirm }}" style="height:44px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#4E1617;border:1px solid #4E1617;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;text-decoration:none;white-space:nowrap">Cancel</button><button onClick="{{ doConfirm }}" style="height:44px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;background:#174C38;color:#F1D7A5;border:none;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px;text-decoration:none;white-space:nowrap">{{ confirm.cta }}</button></div></div></div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {};
+  componentDidMount() { const w = () => { if (!window.AureliaManager) return (this._w = setTimeout(w, 30)); this.setState(window.AureliaManager.state(), () => window.AureliaManager.mount(this)); }; w(); }
+  componentWillUnmount() { clearTimeout(this._w); window.AureliaManager && window.AureliaManager.unmount(this); }
+  renderVals() { return window.AureliaManager && this.state.mt ? window.AureliaManager.vals(this, 'rooms') : { loading: true, flash: {}, me: {}, stop: e => e.stopPropagation() }; }
+}
+</script>
+</body>
+</html>

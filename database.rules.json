@@ -1,0 +1,68 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "staffEmails": {
+      ".read": "(auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local') || (auth != null && auth.token.email_verified === true && root.child('staffEmails').child(auth.token.email.toLowerCase().replace('.', ',')).val() === 'admin')",
+      "$emailKey": {
+        ".write": "(auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local') || (auth != null && auth.token.email_verified === true && root.child('staffEmails').child(auth.token.email.toLowerCase().replace('.', ',')).val() === 'admin')",
+        ".validate": "$emailKey === $emailKey.toLowerCase() && newData.isString() && (newData.val() === 'hotel_manager' || (newData.val() === 'admin' && (auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local')))"
+      }
+    },
+    "presence": {
+      ".read": "(auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local') || (auth != null && auth.token.email_verified === true && root.child('staffEmails').child(auth.token.email.toLowerCase().replace('.', ',')).exists())",
+      "$uid": {
+        ".write": "auth != null && auth.token.email_verified === true && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['state', 'lastChanged'])",
+        "state": {
+          ".validate": "newData.isString() && (newData.val() === 'online' || newData.val() === 'offline')"
+        },
+        "lastChanged": {
+          ".validate": "newData.isNumber()"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length <= 100"
+        },
+        "role": {
+          ".validate": "newData.isString() && (newData.val() === 'customer' || (newData.val() === 'hotel_manager' && ((auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local') || (auth != null && auth.token.email_verified === true && root.child('staffEmails').child(auth.token.email.toLowerCase().replace('.', ',')).exists()))) || (newData.val() === 'admin' && ((auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local') || (auth != null && auth.token.email_verified === true && root.child('staffEmails').child(auth.token.email.toLowerCase().replace('.', ',')).val() === 'admin'))))"
+        },
+        "portal": {
+          ".validate": "newData.isString() && (newData.val() === 'customer' || newData.val() === 'hotel_manager' || newData.val() === 'admin')"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "notifications": {
+      "$target": {
+        ".read": "auth != null && auth.token.email_verified === true && (auth.uid === $target || ($target === 'managers' && ((auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local') || (auth != null && auth.token.email_verified === true && root.child('staffEmails').child(auth.token.email.toLowerCase().replace('.', ',')).exists()))) || ($target === 'admins' && ((auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local') || (auth != null && auth.token.email_verified === true && root.child('staffEmails').child(auth.token.email.toLowerCase().replace('.', ',')).val() === 'admin'))))",
+        "$id": {
+          ".write": "auth != null && auth.token.email_verified === true && $target.length <= 128 && ((!data.exists() && newData.exists() && (auth.uid === $target || ($target === 'managers' && newData.child('type').val() === 'NEW_BOOKING') || ((auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local') || (auth != null && auth.token.email_verified === true && root.child('staffEmails').child(auth.token.email.toLowerCase().replace('.', ',')).exists())))) || (data.exists() && newData.exists() && (auth.uid === $target || ($target === 'managers' && ((auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local') || (auth != null && auth.token.email_verified === true && root.child('staffEmails').child(auth.token.email.toLowerCase().replace('.', ',')).exists()))) || ($target === 'admins' && ((auth != null && auth.token.email_verified === true && auth.token.email.toLowerCase() === 'admin@aureliastay.local') || (auth != null && auth.token.email_verified === true && root.child('staffEmails').child(auth.token.email.toLowerCase().replace('.', ',')).val() === 'admin'))))) || (data.exists() && !newData.exists() && auth.uid === $target))",
+          ".validate": "newData.hasChildren(['type', 'title', 'message', 'at', 'read'])",
+          "type": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60 && (!data.exists() || newData.val() === data.val())"
+          },
+          "title": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200 && (!data.exists() || newData.val() === data.val())"
+          },
+          "message": {
+            ".validate": "newData.isString() && newData.val().length <= 1000 && (!data.exists() || newData.val() === data.val())"
+          },
+          "at": {
+            ".validate": "newData.isString() && newData.val().length <= 40 && newData.val().matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z$/) && (!data.exists() || newData.val() === data.val())"
+          },
+          "read": {
+            ".validate": "newData.isBoolean() && (data.exists() || newData.val() === false)"
+          },
+          "from": {
+            ".validate": "newData.isString() && (data.exists() ? newData.val() === data.val() : newData.val() === auth.uid)"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>My Bookings — AURELIA STAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="../shared/aurelia-store.js"></script>
+<script src="../shared/aurelia-ui.js"></script>
+<script src="../shared/aurelia-motion.js"></script>
+<script src="../shared/aurelia-i18n.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#174C38}
+a:hover{color:#4E1617}
+button{font-family:inherit}
+</style>
+</helmet>
+<div data-screen-label="My Bookings" style="min-height:100vh;background:#F2F2F2">
+<dc-import name="SiteHeader" active="" hint-size="100%,74px"></dc-import>
+<main style="max-width:1120px;margin:0 auto;padding:56px 24px 96px">
+  <h1 data-reveal="up" style="margin:0 0 28px;font:700 clamp(34px,5vw,56px) 'Comfortaa'">My Bookings</h1>
+  <sc-if value="{{ toast }}"><div role="status" style="margin-bottom:20px;padding:14px 18px;background:#DCE8E1;color:#174C38;font-weight:600;border-radius:14px">{{ toast }}</div></sc-if>
+  <div role="tablist" style="display:inline-flex;gap:4px;padding:4px;background:#E4E4E4;border-radius:999px;margin-bottom:28px;flex-wrap:wrap">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+      <button role="tab" aria-selected="{{ t.active }}" onClick="{{ t.onClick }}" style="height:42px;padding:0 20px;background:{{ t.bg }};border:none;border-radius:999px;color:#4E1617;font-weight:{{ t.weight }};font-size:15px;cursor:pointer;transition:background .25s">{{ t.label }}</button>
+    </sc-for>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <sc-for list="{{ list }}" as="b" hint-placeholder-count="2">
+      <article data-reveal="up" style="background:#FFFFFF;border:1px solid rgba(78,22,23,.12);border-radius:22px;padding:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;align-items:center">
+        <div style="display:flex;gap:16px;align-items:center;grid-column:span 2;min-width:0">
+          <div style="width:96px;height:96px;flex:none;border-radius:14px;overflow:hidden;background:#CBCBCB"><img src="{{ b.img }}" alt="{{ b.typeName }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <div style="display:flex;flex-direction:column;gap:5px;min-width:0"><span style="font:500 12px 'JetBrains Mono';color:#6A4744">{{ b.ref }}</span><span style="font:700 20px 'Comfortaa'">{{ b.typeName }}</span><span style="font-size:14px;color:#6A4744">Room {{ b.roomNo }} · {{ b.ciS }} → {{ b.coS }}</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start"><span style="font-size:18px;font-weight:600">{{ b.totalL }}</span><span style="padding:4px 10px;background:{{ b.chip.bg }};color:{{ b.chip.fg }};font:600 11px 'Outfit';letter-spacing:.1em;text-transform:uppercase;border-radius:999px">{{ b.chip.label }}</span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding-right:8px">
+          <a href="{{ b.href }}" style="height:44px;padding:0 18px;display:flex;align-items:center;border:1px solid #4E1617;color:#4E1617;text-decoration:none;font-weight:600;font-size:14px;border-radius:999px" style-hover="background:#4E1617;color:#F1D7A5">View Details</a>
+          <sc-if value="{{ b.canCancel }}"><button onClick="{{ b.onCancel }}" style="height:44px;padding:0 18px;background:transparent;border:1px solid rgba(138,31,33,.4);color:#8A1F21;font-weight:600;font-size:14px;cursor:pointer;border-radius:999px">Cancel</button></sc-if>
+        </div>
+      </article>
+    </sc-for>
+    <sc-if value="{{ empty }}"><div style="padding:48px;text-align:center;border:1px dashed rgba(78,22,23,.3);border-radius:22px;color:#6A4744">{{ empty }}</div></sc-if>
+  </div>
+</main>
+<sc-if value="{{ modal }}">
+  <div role="dialog" aria-modal="true" aria-labelledby="cancel-title" onClick="{{ closeModal }}" style="position:fixed;inset:0;z-index:90;background:rgba(30,8,9,.55);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stop }}" style="width:min(460px,100%);background:#FFFFFF;padding:32px;border-radius:24px;display:flex;flex-direction:column;gap:16px">
+      <h2 id="cancel-title" style="margin:0;font:700 26px 'Comfortaa'">Are you sure?</h2>
+      <p style="margin:0;font-size:15px;color:#6A4744;line-height:1.55">Cancel booking <strong style="color:#4E1617">{{ modal.ref }}</strong> for {{ modal.typeName }}, {{ modal.dates }}? This can't be undone.</p>
+      <sc-if value="{{ modalErr }}"><div role="alert" style="padding:12px;background:#EBD9D8;font-size:14px;font-weight:500;border-radius:12px">{{ modalErr }}</div></sc-if>
+      <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+        <button onClick="{{ closeModal }}" style="height:48px;padding:0 20px;background:transparent;border:1px solid rgba(78,22,23,.35);color:#4E1617;font-weight:600;cursor:pointer;border-radius:999px">No, keep it</button>
+        <button onClick="{{ confirmCancel }}" disabled="{{ busy }}" style="height:48px;padding:0 20px;background:#8A1F21;border:none;color:#FFFFFF;font-weight:600;cursor:pointer;border-radius:999px;opacity:{{ btnOpacity }}">{{ cancelLabel }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+<dc-import name="SiteFooter" hint-size="100%,520px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { me: null, tab: 'upcoming', cancelRef: null, err: '', toast: '', busy: false };
+  componentDidMount() {
+    const w = () => { if (!(window.AureliaStore && window.AureliaUI)) return (this._t = setTimeout(w, 30)); const me = window.AureliaUI.requireCustomer(); if (me) { this._ws = window.AureliaUI.watchSession('customer'); this._un = window.AureliaStore.subscribe(() => this.forceUpdate()); this.setState({ me }); } }; w();
+    this._k = e => { if (e.key === 'Escape') this.setState({ cancelRef: null }); }; window.addEventListener('keydown', this._k);
+  }
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._tt); this._un && this._un(); this._ws && this._ws(); window.removeEventListener('keydown', this._k); }
+  renderVals() {
+    const S = window.AureliaStore, U = window.AureliaUI; const st = this.state; const me = st.me;
+    if (!me) return { tabs: [], list: [] };
+    const mine = S.db.bookings.filter(b => b.customerId === me.id);
+    const lists = { upcoming: mine.filter(b => b.status === 'CONFIRMED' || b.status === 'CHECKED_IN').sort((a, b) => a.checkIn < b.checkIn ? -1 : 1), past: mine.filter(b => b.status === 'COMPLETED').sort((a, b) => a.checkIn > b.checkIn ? -1 : 1), cancelled: mine.filter(b => b.status === 'CANCELLED') };
+    const T = S.today(), allow = S.db.settings.allowCancel;
+    const list = lists[st.tab].map(b => ({ ...U.bookingVM(b), img: U.img(U.TYPE_IMG[b.typeId], 300), href: 'Booking%20Details.dc.html?ref=' + b.ref, canCancel: b.status === 'CONFIRMED' && T < b.checkIn && allow, onCancel: () => this.setState({ cancelRef: b.ref, err: '' }) }));
+    const cb = st.cancelRef && S.booking(st.cancelRef); const ct = cb && S.type(cb.typeId);
+    return {
+      toast: st.toast, list, empty: list.length ? '' : { upcoming: 'No upcoming bookings.', past: 'No past stays yet.', cancelled: 'No cancelled bookings.' }[st.tab],
+      tabs: [['upcoming', 'Upcoming'], ['past', 'Past'], ['cancelled', 'Cancelled']].map(([k, l]) => ({ label: l + ' (' + lists[k].length + ')', active: st.tab === k, bg: st.tab === k ? '#FFFFFF' : 'transparent', weight: st.tab === k ? 700 : 500, onClick: () => this.setState({ tab: k }) })),
+      modal: cb ? { ref: cb.ref, typeName: ct ? ct.name : '', dates: S.fmtShort(cb.checkIn) + ' → ' + S.fmtShort(cb.checkOut) } : null, modalErr: st.err,
+      busy: st.busy, btnOpacity: st.busy ? .7 : 1, cancelLabel: st.busy ? 'Cancelling…' : 'Yes, cancel booking',
+      closeModal: () => this.setState({ cancelRef: null }), stop: e => e.stopPropagation(),
+      confirmCancel: async () => {
+        if (st.busy) return; const ref = st.cancelRef;
+        this.setState({ busy: true, err: '' });
+        const r = await S.cancelBooking(ref, me.id);
+        if (!r.ok) return this.setState({ busy: false, err: r.error });
+        this.setState({ busy: false, cancelRef: null, tab: 'cancelled', toast: 'Booking ' + ref + ' cancelled.' }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: '' }), 3500);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

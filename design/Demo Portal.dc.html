@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>AURELIA STAY — Demo Portal</title>
+<meta name="description" content="AURELIA STAY · Budget Hotel Management & Booking System — choose a portal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="shared/aurelia-store.js"></script>
+<script src="shared/aurelia-motion.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#F2F2F2;color:#4E1617;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#174C38}
+a:hover{color:#4E1617}
+button{font-family:inherit}
+</style>
+</helmet>
+
+<div data-screen-label="Demo Portal" style="min-height:100vh;background:#F2F2F2">
+  <div data-scroll-progress="1" style="position:fixed;left:0;right:0;top:0;height:3px;background:#F1D7A5;transform-origin:0 50%;transform:scaleX(0);z-index:60"></div>
+
+  <section aria-label="AURELIA STAY" style="position:relative;overflow:hidden;background:#174C38;color:#F1D7A5;min-height:min(88vh,760px);display:flex;flex-direction:column">
+    <img data-kenburns="1" src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1800&q=70&auto=format&fit=crop" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.32">
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(23,76,56,.35),rgba(23,76,56,.92))"></div>
+    <div style="position:relative;max-width:1280px;width:100%;margin:0 auto;padding:28px 24px 0;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div data-reveal="fade" style="display:flex;align-items:center;gap:10px"><span style="width:34px;height:34px;border-radius:50%;background:#F1D7A5;color:#174C38;display:flex;align-items:center;justify-content:center;font:700 16px 'Comfortaa'">A</span><span style="font:700 18px 'Comfortaa';letter-spacing:.06em">AURELIA STAY</span></div>
+      <span data-reveal="fade" style="font:500 12px 'JetBrains Mono';letter-spacing:.08em;border:1px solid rgba(241,215,165,.45);padding:8px 14px;border-radius:999px">DEMO · GEORGE TOWN, PENANG</span>
+    </div>
+    <div style="position:relative;flex:1;max-width:1280px;width:100%;margin:0 auto;padding:clamp(48px,8vw,96px) 24px clamp(120px,14vw,170px);display:flex;flex-direction:column;justify-content:flex-end;gap:24px">
+      <div data-reveal="fade" style="font:600 12px 'Outfit';letter-spacing:.18em;text-transform:uppercase;display:flex;align-items:center;gap:12px"><span style="width:28px;height:1px;background:#F1D7A5"></span>Budget Hotel Management &amp; Booking System</div>
+      <h1 style="margin:0;font:700 clamp(52px,9vw,128px) 'Comfortaa';line-height:.95;letter-spacing:-.02em">
+        <span data-reveal="up" style="display:block">One hotel.</span>
+        <span data-reveal="up" data-reveal-delay="140" style="display:block;color:transparent;-webkit-text-stroke:1.5px #F1D7A5">Three portals.</span>
+      </h1>
+      <p data-reveal="up" data-reveal-delay="280" style="margin:0;font-size:clamp(17px,1.7vw,20px);line-height:1.55;max-width:560px">Guests book online, managers run daily operations, admins control the system — all connected to the same live data.</p>
+      <div data-reveal="up" data-reveal-delay="380" style="display:flex;gap:28px;flex-wrap:wrap;margin-top:8px">
+        <div><div style="font:700 36px 'Comfortaa'"><span data-count="20">20</span></div><div style="font-size:13px">rooms</div></div>
+        <div><div style="font:700 36px 'Comfortaa'"><span data-count="4">4</span></div><div style="font-size:13px">room types</div></div>
+        <div><div style="font:700 36px 'Comfortaa'"><span data-count="3">3</span></div><div style="font-size:13px">user roles</div></div>
+        <div><div style="font:700 36px 'Comfortaa'">RM80–95</div><div style="font-size:13px">per night</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Choose a portal" style="position:relative;z-index:2;max-width:1280px;margin:clamp(-120px,-10vw,-80px) auto 0;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:18px">
+    <article data-reveal="up" style="background:#FFFFFF;border-radius:28px;overflow:hidden;box-shadow:0 30px 60px rgba(23,76,56,.16);display:flex;flex-direction:column;transition:translate .4s cubic-bezier(.16,.8,.24,1),box-shadow .4s" style-hover="translate:0 -8px;box-shadow:0 40px 80px rgba(23,76,56,.22)">
+      <div style="height:190px;overflow:hidden;background:#CBCBCB;position:relative"><img data-parallax="0.06" data-parallax-scale="1.15" src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=70&auto=format&fit=crop" alt="Guest room" style="width:100%;height:100%;object-fit:cover;display:block"><span data-float="6" style="position:absolute;left:18px;bottom:16px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase;background:#F1D7A5;color:#4E1617;padding:7px 12px;border-radius:999px">01 · Customer</span></div>
+      <div style="padding:26px;display:flex;flex-direction:column;gap:14px;flex:1">
+        <h2 style="margin:0;font:700 26px 'Comfortaa'">Guest Website</h2>
+        <p style="margin:0;font-size:15px;line-height:1.6;color:#6A4744">Browse rooms, check availability, book, and manage bookings. Guests sign in with Google.</p>
+        <ul style="margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px"><li style="padding:6px 11px;border:1px solid rgba(78,22,23,.18);border-radius:999px;font-size:12px">Book online</li><li style="padding:6px 11px;border:1px solid rgba(78,22,23,.18);border-radius:999px;font-size:12px">My Bookings</li><li style="padding:6px 11px;border:1px solid rgba(78,22,23,.18);border-radius:999px;font-size:12px">BM / EN</li></ul>
+        <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:8px">
+          <a href="website/Login.dc.html" style="height:52px;display:flex;align-items:center;justify-content:center;gap:12px;background:#FFFFFF;border:1px solid rgba(78,22,23,.3);color:#4E1617;text-decoration:none;font-weight:600;font-size:15px;border-radius:999px;transition:box-shadow .3s" style-hover="box-shadow:0 10px 24px rgba(78,22,23,.14);color:#4E1617"><span style="width:24px;height:24px;border-radius:50%;border:2px solid #4E1617;display:flex;align-items:center;justify-content:center;font:700 12px 'Outfit'">G</span>Continue with Google</a>
+          <a href="website/Home.dc.html" style="min-height:44px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#174C38;text-decoration:none" style-hover="color:#4E1617">Browse as visitor →</a>
+        </div>
+      </div>
+    </article>
+
+    <article data-reveal="up" data-reveal-delay="120" style="background:#FFFFFF;border-radius:28px;overflow:hidden;box-shadow:0 30px 60px rgba(23,76,56,.16);display:flex;flex-direction:column;transition:translate .4s cubic-bezier(.16,.8,.24,1),box-shadow .4s" style-hover="translate:0 -8px;box-shadow:0 40px 80px rgba(23,76,56,.22)">
+      <div style="height:190px;overflow:hidden;background:#174C38;position:relative"><img data-parallax="0.06" data-parallax-scale="1.15" src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=900&q=70&auto=format&fit=crop" alt="Housekeeping" style="width:100%;height:100%;object-fit:cover;display:block"><span data-float="6" style="position:absolute;left:18px;bottom:16px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase;background:#174C38;color:#F1D7A5;padding:7px 12px;border-radius:999px">02 · Hotel Manager</span></div>
+      <div style="padding:26px;display:flex;flex-direction:column;gap:14px;flex:1">
+        <h2 style="margin:0;font:700 26px 'Comfortaa'">Manager Portal</h2>
+        <p style="margin:0;font-size:15px;line-height:1.6;color:#6A4744">Run the day: check guests in and out, housekeeping, maintenance and walk-in bookings.</p>
+        <ul style="margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px"><li style="padding:6px 11px;border:1px solid rgba(78,22,23,.18);border-radius:999px;font-size:12px">Check-in / out</li><li style="padding:6px 11px;border:1px solid rgba(78,22,23,.18);border-radius:999px;font-size:12px">Housekeeping</li><li style="padding:6px 11px;border:1px solid rgba(78,22,23,.18);border-radius:999px;font-size:12px">Maintenance</li></ul>
+        <div style="margin-top:auto;padding-top:8px"><a href="manager/Login.dc.html" style="height:52px;display:flex;align-items:center;justify-content:center;gap:10px;background:#174C38;color:#F1D7A5;text-decoration:none;font-weight:600;font-size:15px;border-radius:999px;transition:background .3s" style-hover="background:#0F3827;color:#F1D7A5">Login as Manager <span aria-hidden="true">→</span></a></div>
+      </div>
+    </article>
+
+    <article data-reveal="up" data-reveal-delay="240" style="background:#FFFFFF;border-radius:28px;overflow:hidden;box-shadow:0 30px 60px rgba(23,76,56,.16);display:flex;flex-direction:column;transition:translate .4s cubic-bezier(.16,.8,.24,1),box-shadow .4s" style-hover="translate:0 -8px;box-shadow:0 40px 80px rgba(23,76,56,.22)">
+      <div style="height:190px;overflow:hidden;background:#4E1617;position:relative"><img data-parallax="0.06" data-parallax-scale="1.15" src="https://images.unsplash.com/photo-1455587734955-081b22074882?w=900&q=70&auto=format&fit=crop" alt="Hotel building" style="width:100%;height:100%;object-fit:cover;display:block"><span data-float="6" style="position:absolute;left:18px;bottom:16px;font:600 11px 'Outfit';letter-spacing:.14em;text-transform:uppercase;background:#4E1617;color:#F1D7A5;padding:7px 12px;border-radius:999px">03 · Admin</span></div>
+      <div style="padding:26px;display:flex;flex-direction:column;gap:14px;flex:1">
+        <h2 style="margin:0;font:700 26px 'Comfortaa'">Admin Portal</h2>
+        <p style="margin:0;font-size:15px;line-height:1.6;color:#6A4744">Control the system: users, room pricing, settings, business reports and the full audit trail.</p>
+        <ul style="margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px"><li style="padding:6px 11px;border:1px solid rgba(78,22,23,.18);border-radius:999px;font-size:12px">Users</li><li style="padding:6px 11px;border:1px solid rgba(78,22,23,.18);border-radius:999px;font-size:12px">Pricing</li><li style="padding:6px 11px;border:1px solid rgba(78,22,23,.18);border-radius:999px;font-size:12px">Audit logs</li></ul>
+        <div style="margin-top:auto;padding-top:8px"><a href="admin/Login.dc.html" style="height:52px;display:flex;align-items:center;justify-content:center;gap:10px;background:#4E1617;color:#F1D7A5;text-decoration:none;font-weight:600;font-size:15px;border-radius:999px;transition:background .3s" style-hover="background:#3A0F10;color:#F1D7A5">Login as Admin <span aria-hidden="true">→</span></a></div>
+      </div>
+    </article>
+  </section>
+
+  <section aria-label="How it connects" style="max-width:1280px;margin:0 auto;padding:clamp(72px,9vw,112px) 24px">
+    <div data-reveal="up" style="margin-bottom:40px"><div style="font:600 12px 'Outfit';letter-spacing:.16em;text-transform:uppercase;color:#6A4744;margin-bottom:10px">How it connects</div><h2 style="margin:0;font:700 clamp(32px,4.5vw,52px) 'Comfortaa';line-height:1.05;max-width:760px">One booking, followed through every portal.</h2></div>
+    <ol style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:1px;background:rgba(78,22,23,.14);border:1px solid rgba(78,22,23,.14);border-radius:24px;overflow:hidden">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="5">
+        <li data-reveal="up" data-reveal-delay="{{ s.delay }}" style="background:#F2F2F2;padding:26px 24px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:500 13px 'JetBrains Mono';color:#6A4744">{{ s.num }}</span><span style="font:600 10px 'Outfit';letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:{{ s.bg }};color:{{ s.fg }}">{{ s.role }}</span></div>
+          <div style="font:700 20px 'Comfortaa'">{{ s.title }}</div>
+          <div style="font-size:14px;line-height:1.55;color:#6A4744">{{ s.text }}</div>
+        </li>
+      </sc-for>
+    </ol>
+  </section>
+
+  <section aria-label="Live snapshot" style="background:#4E1617;color:#F1D7A5;overflow:hidden">
+    <div style="padding:22px 0;border-bottom:1px solid rgba(241,215,165,.2)"><div data-marquee="45" style="display:flex;gap:40px;white-space:nowrap;width:max-content;font:500 14px 'JetBrains Mono';letter-spacing:.1em;text-transform:uppercase"><sc-for list="{{ ticker }}" as="w"><span>{{ w }}</span><span aria-hidden="true">✦</span></sc-for></div></div>
+    <div style="max-width:1280px;margin:0 auto;padding:clamp(56px,7vw,88px) 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:28px">
+      <sc-for list="{{ live }}" as="l" hint-placeholder-count="4">
+        <div data-reveal="up" data-reveal-delay="{{ l.delay }}" style="border-top:1px solid rgba(241,215,165,.35);padding-top:18px"><div style="font:700 clamp(40px,5vw,60px) 'Comfortaa'"><span data-count="{{ l.n }}" data-count-prefix="{{ l.pre }}">{{ l.pre }}{{ l.n }}</span></div><div style="font-size:14px;margin-top:4px">{{ l.k }}</div></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="max-width:1280px;margin:0 auto;padding:32px 24px 40px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:14px;color:#6A4744">
+    <span>© 2026 AURELIA STAY · 38 Lebuh Chulia, George Town, Pulau Pinang</span>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <a href="tests/store-tests.html" style="font:500 12px 'JetBrains Mono';letter-spacing:.04em;background:#174C38;color:#F1D7A5;padding:8px 16px;border-radius:999px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:opacity .2s" style-hover="opacity:.85">
+        <span>🧪</span> In-Browser Test Suite (41 Tests)
+      </a>
+      <a href="http://127.0.0.1:4001" target="_blank" rel="noopener" style="font:500 12px 'JetBrains Mono';letter-spacing:.04em;background:#4E1617;color:#F1D7A5;padding:8px 16px;border-radius:999px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:opacity .2s" style-hover="opacity:.85">
+        <span>⚡</span> Firebase Emulator UI (:4001)
+      </a>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { ready: false };
+  componentDidMount() { const w = () => { if (window.AureliaStore) { this._un = window.AureliaStore.subscribe(() => this.forceUpdate()); this.setState({ ready: true }); } else this._t = setTimeout(w, 30); }; w(); }
+  componentWillUnmount() { this._un && this._un(); clearTimeout(this._t); }
+  renderVals() {
+    const st = this.state; const S = window.AureliaStore;
+    const R = { Customer: ['#F1D7A5', '#4E1617'], Manager: ['#174C38', '#F1D7A5'], Admin: ['#4E1617', '#F1D7A5'] };
+    const steps = [['Customer', 'Books a room', 'Picks dates and a room type — a room is assigned automatically.'], ['Manager', 'Checks the guest in', 'Room moves from Reserved to Occupied.'], ['Manager', 'Checks out & cleans', 'A housekeeping task is created; the room returns to Available.'], ['Admin', 'Sees it in reports', 'Revenue, occupancy and every action in the audit log.'], ['Admin', 'Adjusts pricing', 'New prices apply to new bookings only.']]
+      .map(([role, title, text], i) => ({ role, title, text, num: '0' + (i + 1), bg: R[role][0], fg: R[role][1], delay: i * 90 }));
+    // public figures only: visitors cannot read bookings or the audit log, so nothing private is counted here
+    let live = [];
+    if (st.ready) { const db = S.db; const prices = db.roomTypes.filter(t => t.active).map(t => t.price); live = [['Rooms available now', db.rooms.filter(r => r.status === 'AVAILABLE').length, ''], ['Rooms in total', db.rooms.length, ''], ['Room types', db.roomTypes.filter(t => t.active).length, ''], ['Starting price per night', prices.length ? Math.min(...prices) : 0, 'RM']].map(([k, n, pre], i) => ({ k, n, pre, delay: i * 80 })); }
+    const T = ['Google sign-in for every role', 'Guest, manager and admin portals', 'Overlap-safe room assignment', 'Snapshot pricing', 'Housekeeping flow', 'Maintenance requests', 'Live online presence', 'Audit trail', 'BM / EN'];
+    return { steps, live, ticker: T.concat(T) };
+  }
+}
+</script>
+</body>
+</html>
